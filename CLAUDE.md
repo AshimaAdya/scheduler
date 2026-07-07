@@ -153,3 +153,9 @@ _Append architectural decisions here as they're made mid-build so future session
 - **2026-07-06:** Timestamps stored UTC; rendered in `businesses.settings.timezone` (`America/Vancouver` default).
 - **2026-07-06:** Tier wait-windows stored on the coverage request at creation time — in-flight requests keep the window they started with; changing settings only affects new requests.
 - **2026-07-06:** Direct swap data model includes `trade_type: two_way | one_way` from day one; only `two_way` is exposed in the UI for the MVP.
+- **2026-07-06 (SCH-6):** Schema uses native Postgres enum types for fixed domains. `business_id` defaults to the sentinel UUID `00000000-0000-0000-0000-000000000001` (the one seeded business) on every table. See `docs/schema.md` for the full schema.
+- **2026-07-06 (SCH-6):** `headcount` on `shift_templates` is expanded into individual single-seat `shifts`; an unfilled seat = a shift with no `shift_assignment`.
+- **2026-07-06 (SCH-6):** All three coverage triggers share one `coverage_requests` table; swap-only columns are nullable + CHECK-guarded to `direct_swap`. Time-off approval is a column (`time_off_approved_at`), not a separate table.
+- **2026-07-06 (SCH-6):** Time-off invariant enforced by a **CHECK constraint** (`time_off_approved_at IS NULL OR status = 'covered'`) — unbypassable, not a trigger. Proven by `src/__tests__/db/coverage-invariants.db.test.ts`.
+- **2026-07-06 (SCH-6):** Recurring availability / template demand use naive `time`/`date` (wall-clock in business tz) by design; concrete `shifts` are `timestamptz` UTC. This is not a violation of the UTC rule.
+- **2026-07-06 (SCH-6):** DB integration tests are `*.db.test.ts`, run via `npm run test:db` against local Supabase — excluded from `npm run test` so CI stays DB-free until SCH-26.

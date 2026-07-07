@@ -9,6 +9,8 @@ export default defineConfig({
     globals: true,
     setupFiles: [],
     include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    // DB integration tests need a running local Supabase; run them via `test:db`.
+    exclude: ["**/node_modules/**", "**/*.db.test.ts"],
   },
   resolve: {
     alias: {
