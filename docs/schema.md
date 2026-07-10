@@ -311,6 +311,50 @@ CHECK rather than replacing it. Proven by `src/__tests__/db/coverage-invariants.
 
 ---
 
+## Row-level security (SCH-7)
+
+RLS is enabled on **all 11 tables** (default-deny). Migrations:
+`20260709120000_rls_helpers.sql` and `20260709120100_rls_policies.sql`.
+
+**Roles.** `authenticated` users are governed by the policies below, keyed to
+their linked `employees` row. `anon` has no access. `service_role` has `BYPASSRLS`
+and is how the server performs privileged operations (notification logging, cron
+tier advancement, atomic claim resolution). Table-level `GRANT`s are issued to the
+API roles in the policies migration — this Supabase version does not auto-expose
+new tables, so grants are explicit; RLS then narrows which *rows* each user sees.
+
+**Helper functions** (`SECURITY DEFINER`, `search_path=''`) resolve the caller to
+their employee identity/role without recursing through the `employees` policy:
+`app_current_employee_id()`, `app_current_business_id()`, `app_current_role()`,
+`app_is_manager_or_admin()`, `app_is_admin()`, and `app_employee_can_see_shift(uuid)`
+(encapsulates the employee shift-visibility rule).
+
+**Policy matrix:**
+
+| Table | Employee | Manager / Admin |
+|---|---|---|
+| `businesses` | read own business | read; update settings |
+| `locations` | read | read + write |
+| `employees` | read **own row only** | read + write |
+| `availability_rules` | read + write **own only** | read + write all |
+| `shift_templates` | *(none)* | read + write |
+| `schedules` | read **published** only | read + write (incl. draft) |
+| `shifts` | read **own-assigned + open** in published schedules | read + write all |
+| `shift_assignments` | read **own only** | read + write all |
+| `coverage_requests` | read where involved; insert own | read + write all |
+| `coverage_offers` | read + respond (update) **own only** | read + write all |
+| `notifications_log` | read own | read all (write = service-role) |
+
+**Invariant #3 — controlled coworker disclosure.** Employees cannot read the
+`employees`, `availability_rules`, or `shift_assignments` rows of others. The
+"who is available for shift X" disclosure the swap flow needs (coworker name +
+eligibility only, never a full schedule) is **not** exposed by loosening these
+policies — it will be delivered by a dedicated `SECURITY DEFINER` RPC in SCH-17.
+This baseline stays maximally restrictive. Proven by `src/__tests__/db/rls.db.test.ts`
+(employee-JWT vs manager-JWT clients).
+
+---
+
 ## Seed data (`supabase/seed.sql`)
 
 - **1 business** — "Harbour Coffee Co.", `require_approval`, `America/Vancouver`,
