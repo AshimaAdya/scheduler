@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scheduler — complete UI page deck</title>
+<style>
+  :root{--ink:#22262a;--mut:#6b7178;--faint:#9aa0a6;--bg:#f4f3ef;--card:#ffffff;--line:#e3e1da;--acc:#0f6e56;--acc-soft:#e1f5ee;--warn:#ba7517;--warn-soft:#faeeda;--dang:#a32d2d;--dang-soft:#fcebeb;--ok:#3b6d11;--ok-soft:#eaf3de;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Segoe UI",Inter,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;padding:48px 24px 80px}
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{font-size:30px;font-weight:600;letter-spacing:-.02em}
+  h2{font-size:21px;font-weight:600;margin:56px 0 6px;letter-spacing:-.01em}
+  h3{font-size:14px;font-weight:600;margin:0 0 2px}
+  .sub{color:var(--mut);font-size:14.5px;max-width:760px}
+  .eyebrow{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);font-weight:600}
+  .rule{height:1px;background:var(--line);margin:18px 0 26px}
+  .grid{display:grid;gap:24px;margin-top:22px}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(440px,1fr))}
+  .shot{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 20px}
+  .shot .meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .shot .tik{font-size:11px;color:var(--faint);font-family:ui-monospace,monospace}
+  .shot .why{font-size:12.5px;color:var(--mut);margin-top:12px}
+  .phone{width:100%;max-width:290px;margin:0 auto;background:#fbfaf8;border:1px solid var(--line);border-radius:22px;padding:16px 13px;font-size:12.5px}
+  .desk{background:#fbfaf8;border:1px solid var(--line);border-radius:12px;padding:16px;font-size:12.5px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .mut{color:var(--mut);font-size:11.5px}
+  .faint{color:var(--faint);font-size:11px}
+  .ttl{font-weight:600;font-size:12.5px}
+  .big{font-weight:600;font-size:14px}
+  .chip{display:inline-block;font-size:10.5px;font-weight:600;padding:2px 9px;border-radius:8px;white-space:nowrap}
+  .c-warn{background:var(--warn-soft);color:var(--warn)}
+  .c-ok{background:var(--ok-soft);color:var(--ok)}
+  .c-dang{background:var(--dang-soft);color:var(--dang)}
+  .c-acc{background:var(--acc-soft);color:var(--acc)}
+  .btn{display:block;width:100%;text-align:center;border:1px solid var(--line);border-radius:10px;padding:10px 0;font-size:12.5px;font-weight:600;background:var(--card);margin-bottom:7px}
+  .btn.fill{background:var(--acc);border-color:var(--acc);color:#fff}
+  .btn.dang{border-color:#e8b8b8;color:var(--dang)}
+  .btn.sm{display:inline-block;width:auto;padding:6px 13px;margin:0;font-size:11.5px}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .steps{display:flex;align-items:center;gap:5px;margin:9px 0 3px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+  .dot.on{background:var(--warn)}
+  .dot.done{background:var(--ok)}
+  .bar{flex:1;height:2px;background:var(--line)}
+  .bar.done{background:var(--ok)}
+  .field{border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--card);margin-bottom:7px;color:var(--faint);font-size:12px}
+  .field.sel{color:var(--ink);border-color:var(--acc)}
+  table.tbl{width:100%;border-collapse:collapse;font-size:12px}
+  .tbl th{text-align:left;color:var(--faint);font-weight:600;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--line)}
+  .tbl td{padding:8px;border-bottom:1px solid var(--line)}
+  .cal{display:grid;grid-template-columns:52px repeat(5,1fr);gap:4px;font-size:10.5px}
+  .cal .hd{color:var(--faint);font-weight:600;text-align:center;padding:3px 0}
+  .cal .lbl{color:var(--faint);padding:6px 2px}
+  .slot{border-radius:7px;padding:5px 6px;background:var(--acc-soft);color:var(--acc);font-weight:600;line-height:1.3}
+  .slot.empty{background:var(--dang-soft);color:var(--dang);border:1px dashed #e8b8b8}
+  .lang{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 24px;margin-top:22px}
+  .lang table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .lang td,.lang th{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  .lang th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .lang tr:last-child td{border-bottom:none}
+  .old{font-family:ui-monospace,monospace;font-size:12px;color:var(--faint)}
+  .avatar{width:26px;height:26px;border-radius:50%;background:var(--acc-soft);color:var(--acc);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">Design deck · v1</p>
+<h1>Every screen in the scheduling app</h1>
+<p class="sub" style="margin-top:8px">Sixteen pages across two roles. Employee pages are phone-first; manager pages are desktop-first but responsive. Visual style: calm and minimal (Option A) with the home screen built as a decision feed (Option D). One rule everywhere: <strong>the system's internal words never reach the screen.</strong></p>
+
+<div class="lang">
+  <h3 style="margin-bottom:10px">Status language — what employees see instead of engineering terms</h3>
+  <table>
+    <tr><th>Internal (code and tickets)</th><th>On screen</th></tr>
+    <tr><td class="old">tier1_broadcast</td><td>Asking your team at Kingsway · 4 people</td></tr>
+    <tr><td class="old">tier2_broadcast</td><td>Asking staff at other locations</td></tr>
+    <tr><td class="old">escalated</td><td>Sent to your manager</td></tr>
+    <tr><td class="old">covered</td><td>Covered by Jordan — your day off is approved</td></tr>
+    <tr><td class="old">coverage_request (day_off, pending)</td><td>Finding someone to cover you</td></tr>
+    <tr><td class="old">manager_resolved / cancelled</td><td>Sorted by your manager / Request cancelled</td></tr>
+  </table>
+  <p class="mut" style="margin-top:10px">Progress is shown as three dots — Your team → Other locations → Manager — so nobody needs to learn what a "tier" is.</p>
+</div>
+
+<h2>Employee pages</h2>
+<p class="sub">Everything reachable in two taps from home. Emergency action is always the loudest element.</p>
+<div class="rule"></div>
+
+<div class="grid g3">
+
+<div class="shot">
+  <div class="meta"><h3>E1 · Welcome &amp; sign in</h3><span class="tik">SCH-8</span></div>
+  <div class="phone">
+    <p class="big" style="margin:26px 0 4px;text-align:center">You're invited</p>
+    <p class="mut" style="text-align:center;margin-bottom:18px">Kingsway Market added you to the team schedule</p>
+    <div class="field">Work email</div>
+    <div class="field">Choose a password</div>
+    <div class="btn fill">Set up my account</div>
+    <p class="faint" style="text-align:center;margin-top:6px">Already set up? Sign in</p>
+  </div>
+  <p class="why">Invite-only — no public signup. One screen, no marketing fluff.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>E2 · Home — the feed</h3><span class="tik">SCH-28</span></div>
+  <div class="phone">
+    <div class="row" style="margin-bottom:10px"><span class="big">For you</span><span class="avatar">PS</span></div>
+    <div class="card" style="border-color:#ecd9b3;background:#fdf8ee">
+      <p class="faint" style="color:var(--warn)">NEEDS YOUR REPLY</p>
+      <p class="ttl">Cover Marco's shift?</p>
+      <p class="mut">Sat Jul 11 · 6 am – 2 pm · Barista · Kingsway</p>
+      <div class="split" style="margin-top:8px"><span class="btn fill sm" style="text-align:center">Yes, I'll take it</span><span class="btn sm" style="text-align:center">No thanks</span></div>
+    </div>
+    <div class="card">
+      <p class="faint">YOUR NEXT SHIFT</p>
+      <p class="ttl">Today · 9 am – 5 pm · Cashier</p>
+      <p class="mut" style="margin-top:4px;color:var(--acc);font-weight:600">Can't make it &nbsp;·&nbsp; Swap &nbsp;·&nbsp; Day off</p>
+    </div>
+    <div class="card">
+      <p class="faint">OPEN SHIFT YOU CAN GRAB</p>
+      <p class="ttl">Sun Jul 12 · 12 – 6 pm · Metrotown</p>
+    </div>
+    <div class="card row"><span class="mut">Your Jul 17 day off</span><span class="chip c-warn">Finding cover</span></div>
+  </div>
+  <p class="why">Decisions first, newest on top. Static info lives in My schedule, not here.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>E3 · My schedule</h3><span class="tik">SCH-16</span></div>
+  <div class="phone">
+    <div class="row" style="margin-bottom:10px"><span class="big">My schedule</span><span class="mut">Jul 7 – 13</span></div>
+    <div class="card row"><div><p class="ttl">Thu 9 · today</p><p class="mut">9 am – 5 pm · Cashier · Kingsway</p></div><span class="chip c-acc">On</span></div>
+    <div class="card row"><div><p class="ttl">Fri 10</p><p class="mut">No shift</p></div></div>
+    <div class="card row"><div><p class="ttl">Sat 11</p><p class="mut">1 – 9 pm · Cashier · Kingsway</p></div><span class="chip c-acc">On</span></div>
+    <div class="card row" style="border-style:dashed"><div><p class="ttl">Sun 12 · open shift</p><p class="mut">12 – 6 pm · Metrotown</p></div><span class="btn sm">Claim</span></div>
+    <p class="faint" style="text-align:center;margin-top:6px">Only your shifts and open shifts show here</p>
+  </div>
+  <p class="why">Week list, not a grid — easier on a phone. Privacy rule visible: no one else's schedule.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>E4 · Can't make my shift</h3><span class="tik">SCH-19</span></div>
+  <div class="phone">
+    <p class="big" style="margin-bottom:4px">Can't make a shift?</p>
+    <p class="mut" style="margin-bottom:12px">No problem — we'll find cover right away.</p>
+    <div class="field sel">Today · 9 am – 5 pm · Cashier ✓</div>
+    <div class="field">Sat Jul 11 · 1 – 9 pm</div>
+    <div class="btn dang" style="margin-top:10px">I can't make this shift</div>
+    <div class="card" style="margin-top:12px;background:#fdf8ee;border-color:#ecd9b3">
+      <p class="mut">What happens next: we ask your Kingsway team first, then other locations, and your manager steps in if nobody's free. You'll see progress live.</p>
+    </div>
+  </div>
+  <p class="why">Two taps: pick shift, confirm. The "what happens next" note builds trust in the automation.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>E5 · Request a day off</h3><span class="tik">SCH-20</span></div>
+  <div class="phone">
+    <p class="big" style="margin-bottom:12px">Request a day off</p>
+    <div class="field sel">Fri Jul 17 ✓ &nbsp;<span class="faint">(you're scheduled 9–5)</span></div>
+    <div class="field">Add a note for your manager (optional)</div>
+    <div class="btn fill">Request day off</div>
+    <div class="card" style="margin-top:10px">
+      <p class="mut">Your day off is <strong>approved the moment a teammate confirms</strong> they'll cover you. We'll keep you posted.</p>
+    </div>
+  </div>
+  <p class="why">Sets the core product promise in plain words: approval = coverage confirmed.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>E6 · Swap a shift</h3><span class="tik">SCH-21</span></div>
+  <div class="phone">
+    <p class="big" style="margin-bottom:2px">Swap your Sat shift</p>
+    <p class="mut" style="margin-bottom:10px">Pick a teammate who's free — we'll offer them a trade.</p>
+    <div class="card row"><div style="display:flex;gap:8px;align-items:center"><span class="avatar">JT</span><div><p class="ttl">Jordan</p><p class="mut">Free Sat · would trade their Tue shift</p></div></div><span class="btn sm">Ask</span></div>
+    <div class="card row"><div style="display:flex;gap:8px;align-items:center"><span class="avatar">AK</span><div><p class="ttl">Aisha</p><p class="mut">Free Sat · would trade their Mon shift</p></div></div><span class="btn sm">Ask</span></div>
+    <p class="faint" style="margin-top:6px">Can't find a trade? Post it to everyone instead</p>
+  </div>
+  <p class="why">Shows only who is eligible — never full schedules. Fallback to broadcast is one tap.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>E7 · My requests</h3><span class="tik">SCH-19/20/21</span></div>
+  <div class="phone">
+    <p class="big" style="margin-bottom:10px">My requests</p>
+    <div class="card">
+      <div class="row"><p class="ttl">Fri Jul 17 day off</p><span class="chip c-warn">In progress</span></div>
+      <div class="steps"><span class="dot done"></span><span class="bar done"></span><span class="dot on"></span><span class="bar"></span><span class="dot"></span></div>
+      <p class="mut">Asking staff at other locations · your team was asked first</p>
+    </div>
+    <div class="card">
+      <div class="row"><p class="ttl">Jul 3 sick day</p><span class="chip c-ok">Covered by Jordan</span></div>
+      <p class="mut">Approved · Jordan took your shift</p>
+    </div>
+    <div class="card">
+      <div class="row"><p class="ttl">Swap with Aisha</p><span class="chip c-dang">Declined</span></div>
+      <p class="mut">Try someone else or post to everyone</p>
+    </div>
+  </div>
+  <p class="why">The three-dot journey (your team → other locations → manager) replaces "Tier 1/2".</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>E8 · My availability</h3><span class="tik">SCH-10</span></div>
+  <div class="phone">
+    <p class="big" style="margin-bottom:10px">When can you work?</p>
+    <div class="card row"><span class="ttl">Monday</span><span class="mut">9 am – 6 pm</span></div>
+    <div class="card row"><span class="ttl">Tuesday</span><span class="mut">Not available</span></div>
+    <div class="card row"><span class="ttl">Wednesday</span><span class="mut">9 am – 6 pm</span></div>
+    <div class="card row"><span class="ttl">Weekend</span><span class="mut">Any time</span></div>
+    <div class="btn" style="margin-top:8px">Add a date I'm away</div>
+    <p class="faint" style="margin-top:6px">Changes apply to next week's schedule onward</p>
+  </div>
+  <p class="why">Recurring pattern + one-off exceptions. Feeds the auto-scheduler directly.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>E9 · Profile &amp; notifications</h3><span class="tik">SCH-26</span></div>
+  <div class="phone">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px"><span class="avatar" style="width:38px;height:38px;font-size:13px">PS</span><div><p class="ttl">Priya Sharma</p><p class="mut">Cashier · Kingsway</p></div></div>
+    <div class="card row"><span class="ttl">Text me about shifts</span><span class="chip c-ok">On</span></div>
+    <div class="card row"><span class="ttl">Email me too</span><span class="chip c-ok">On</span></div>
+    <div class="card row"><span class="ttl">Phone number</span><span class="mut">+1 604 ··· 4321</span></div>
+    <div class="card row"><span class="ttl">Sign out</span></div>
+  </div>
+  <p class="why">Channel preferences drive where broadcasts go. Kept deliberately tiny.</p>
+</div>
+
+</div>
+
+<h2>Manager pages</h2>
+<p class="sub">Desktop-first, glanceable density. Every automated action has a manual override right next to it.</p>
+<div class="rule"></div>
+
+<div class="grid g2">
+
+<div class="shot">
+  <div class="meta"><h3>M1 · Live coverage board</h3><span class="tik">SCH-29 · SCH-24</span></div>
+  <div class="desk">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+      <div class="card" style="margin:0"><p class="faint">OPEN REQUESTS</p><p class="big">2</p></div>
+      <div class="card" style="margin:0"><p class="faint">UNFILLED THIS WEEK</p><p class="big">1</p></div>
+      <div class="card" style="margin:0"><p class="faint">AWAITING APPROVAL</p><p class="big">3</p></div>
+    </div>
+    <div class="card">
+      <div class="row"><p class="ttl">Sat 6 am – 2 pm · Barista · Kingsway — Marco is out sick</p><span class="chip c-warn">Asking his team · 8 min left</span></div>
+      <p class="mut" style="margin-top:5px">Asked: Aisha · Ben (no) · Cole &nbsp;&nbsp;<span style="color:var(--acc);font-weight:600">Assign someone · Cancel</span></p>
+    </div>
+    <div class="card">
+      <div class="row"><p class="ttl">Fri Jul 17 · Cashier · Metrotown — Priya's day off</p><span class="chip c-ok">Covered by Jordan</span></div>
+      <p class="mut" style="margin-top:5px">Waiting on you &nbsp;&nbsp;<span style="color:var(--acc);font-weight:600">Approve</span></p>
+    </div>
+  </div>
+  <p class="why">The home page for managers. Live countdowns, who was asked, and overrides inline — the automation never locks a manager out.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>M2 · Schedule builder</h3><span class="tik">SCH-14 · SCH-15</span></div>
+  <div class="desk">
+    <div class="row" style="margin-bottom:8px"><span class="ttl">Week of Jul 13 · Kingsway</span><span><span class="btn sm">Generate</span> <span class="btn fill sm">Publish</span></span></div>
+    <div class="cal">
+      <span class="lbl"></span><span class="hd">Mon</span><span class="hd">Tue</span><span class="hd">Wed</span><span class="hd">Thu</span><span class="hd">Fri</span>
+      <span class="lbl">9–5</span><span class="slot">Priya</span><span class="slot">Cole</span><span class="slot">Priya</span><span class="slot empty">Unfilled</span><span class="slot">Aisha</span>
+      <span class="lbl">6–2</span><span class="slot">Marco</span><span class="slot">Jordan</span><span class="slot">Marco</span><span class="slot">Jordan</span><span class="slot">Marco</span>
+    </div>
+    <p class="faint" style="margin-top:8px">Draft — click any shift to reassign from eligible staff. Unfilled slots highlighted.</p>
+  </div>
+  <p class="why">Generate → review → publish. Auto-publish mode skips the review stop if the business turns it on.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>M3 · Approvals</h3><span class="tik">SCH-20</span></div>
+  <div class="desk">
+    <table class="tbl">
+      <tr><th>Request</th><th>Coverage</th><th></th></tr>
+      <tr><td>Priya · Fri Jul 17 day off</td><td><span class="chip c-ok">Jordan confirmed</span></td><td><span class="btn fill sm">Approve</span></td></tr>
+      <tr><td>Dev · Swap with Aisha (Tue↔Thu)</td><td><span class="chip c-ok">Both confirmed</span></td><td><span class="btn fill sm">Approve</span></td></tr>
+      <tr><td>Sam · Sun Jul 20 day off</td><td><span class="chip c-warn">Still finding cover</span></td><td><span class="faint">Locked until covered</span></td></tr>
+    </table>
+  </div>
+  <p class="why">Approve is literally impossible before coverage confirms — the button doesn't exist until then. Only shown when approval mode is on.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>M4 · Team</h3><span class="tik">SCH-9 · SCH-17</span></div>
+  <div class="desk">
+    <div class="row" style="margin-bottom:8px"><span class="ttl">Team · 14 people</span><span><span class="btn sm">Import CSV</span> <span class="btn fill sm">Add person</span></span></div>
+    <table class="tbl">
+      <tr><th>Name</th><th>Role</th><th>Skills</th><th>Home</th></tr>
+      <tr><td>Priya Sharma</td><td>Employee</td><td>Cashier</td><td>Kingsway</td></tr>
+      <tr><td>Jordan Tse</td><td>Employee</td><td>Cashier, barista</td><td>Metrotown</td></tr>
+      <tr><td>Dana Wills</td><td>Manager</td><td>—</td><td>Kingsway</td></tr>
+    </table>
+  </div>
+  <p class="why">Add one at a time or bulk import. Clicking a person opens M5.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>M5 · Person detail</h3><span class="tik">SCH-9 · SCH-10</span></div>
+  <div class="desk">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span class="avatar" style="width:34px;height:34px;font-size:12px">JT</span><div><p class="ttl">Jordan Tse</p><p class="mut">Cashier, barista · Metrotown · max 32 hrs/week</p></div></div>
+    <div class="card row"><span class="mut">Availability</span><span class="mut">Weekdays 6 am – 3 pm · weekends any</span></div>
+    <div class="card row"><span class="mut">Contact</span><span class="mut">+1 604 ··· 8876 · jordan@…</span></div>
+    <div class="row" style="margin-top:6px"><span class="btn sm">Edit</span><span class="btn sm" style="color:var(--dang)">Deactivate</span></div>
+  </div>
+  <p class="why">Deactivate, never delete — removes them from scheduling and broadcasts but keeps history.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>M6 · Shift patterns</h3><span class="tik">SCH-12</span></div>
+  <div class="desk">
+    <div class="card row"><div><p class="ttl">Weekday mornings · Kingsway</p><p class="mut">Mon–Fri · 6 am – 2 pm · 1 barista + 1 cashier</p></div><span class="btn sm">Edit</span></div>
+    <div class="card row"><div><p class="ttl">Weekday day · Kingsway</p><p class="mut">Mon–Fri · 9 am – 5 pm · 2 cashiers + 1 supervisor</p></div><span class="btn sm">Edit</span></div>
+    <div class="btn" style="max-width:180px">Add a pattern</div>
+  </div>
+  <p class="why">These patterns are what the weekly generator fills with people. Called "patterns", not "templates" — friendlier.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>M7 · Settings</h3><span class="tik">SCH-11</span></div>
+  <div class="desk">
+    <div class="card row"><div><p class="ttl">Review schedules before they go out</p><p class="mut">Off = publish automatically each week</p></div><span class="chip c-ok">On</span></div>
+    <div class="card row"><div><p class="ttl">Sick call — how long to ask the home team first</p></div><span class="mut">30 minutes</span></div>
+    <div class="card row"><div><p class="ttl">Sick call — then other locations for</p></div><span class="mut">30 minutes</span></div>
+    <div class="card row"><div><p class="ttl">Planned day off — each step waits</p></div><span class="mut">24 hours</span></div>
+    <div class="card row"><div><p class="ttl">Timezone</p></div><span class="mut">Pacific (Vancouver)</span></div>
+  </div>
+  <p class="why">The wait-window jargon becomes plain sentences. New timings apply to new requests only.</p>
+</div>
+
+<div class="shot">
+  <div class="meta"><h3>M8 · Message log</h3><span class="tik">SCH-25</span></div>
+  <div class="desk">
+    <table class="tbl">
+      <tr><th>When</th><th>To</th><th>Message</th><th>Status</th></tr>
+      <tr><td>6:02 am</td><td>Aisha</td><td>Cover ask · Sat barista</td><td><span class="chip c-ok">Delivered</span></td></tr>
+      <tr><td>6:02 am</td><td>Ben</td><td>Cover ask · Sat barista</td><td><span class="chip c-ok">Replied no</span></td></tr>
+      <tr><td>6:02 am</td><td>Cole</td><td>Cover ask · Sat barista</td><td><span class="chip c-dang">Failed — bad number</span></td></tr>
+    </table>
+  </div>
+  <p class="why">Settles every "I never got the text" dispute, and surfaces bad phone numbers before they matter.</p>
+</div>
+
+</div>
+
+<h2 style="margin-top:64px">Not building (on purpose)</h2>
+<p class="sub">No separate chat interface (the SMS channel already is the conversation — an in-app chat like Option E is a phase-2 experiment). No employee directory browsing, no messaging between staff, no time-clock/punch-in — out of scope for MVP, and the first two would conflict with the privacy rule.</p>
+
+</div>
+</body>
+</html>
