@@ -1,11 +1,11 @@
+import { buttonClasses } from "@/components/ui/button";
+import { strings } from "@/lib/strings";
+
 export function SignOutButton() {
   return (
     <form action="/auth/signout" method="post">
-      <button
-        type="submit"
-        className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-      >
-        Sign out
+      <button type="submit" className={buttonClasses("secondary", "sm")}>
+        {strings.common.signOut}
       </button>
     </form>
   );
