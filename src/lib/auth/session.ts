@@ -13,6 +13,21 @@ export async function getCurrentUser() {
   return user;
 }
 
+/** The current user's linked employee id, or null. */
+export async function getCurrentEmployeeId(): Promise<string | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase
+    .from("employees")
+    .select("id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  return data?.id ?? null;
+}
+
 /**
  * The current user's role. Prefers the `user_role` JWT claim (from the custom
  * access token hook); falls back to the employees table if the claim is absent.

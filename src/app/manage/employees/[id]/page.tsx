@@ -57,6 +57,13 @@ export default async function EmployeeDetailPage({
       </div>
       <p className="text-sm text-muted">{strings.person.deactivateNote}</p>
 
+      <Link
+        href={`/manage/employees/${employee.id}/availability`}
+        className={buttonClasses("secondary", "sm") + " self-start"}
+      >
+        {strings.availability.managerTitle}
+      </Link>
+
       <Card>
         <h2 className="mb-4 text-lg font-semibold text-ink">
           {strings.person.editTitle}
