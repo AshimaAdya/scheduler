@@ -1,5 +1,4 @@
-import { Suspense } from "react";
-import { AcceptInviteForm } from "./accept-invite-form";
+import { SetPasswordForm } from "@/components/set-password-form";
 
 export default function AcceptInvitePage() {
   return (
@@ -8,9 +7,7 @@ export default function AcceptInvitePage() {
       <p className="text-sm text-gray-600">
         Choose a password to finish setting up your account.
       </p>
-      <Suspense>
-        <AcceptInviteForm />
-      </Suspense>
+      <SetPasswordForm submitLabel="Set password" redirectTo="/dashboard" />
     </main>
   );
 }

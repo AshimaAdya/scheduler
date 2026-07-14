@@ -8,7 +8,7 @@
 export type AppRole = "employee" | "manager" | "admin";
 
 /** Routes reachable without authentication. */
-const PUBLIC_PREFIXES = ["/login", "/accept-invite", "/auth"];
+const PUBLIC_PREFIXES = ["/login", "/accept-invite", "/forgot-password", "/auth"];
 
 /** Manager/admin-only area. */
 const MANAGER_PREFIXES = ["/manage"];
