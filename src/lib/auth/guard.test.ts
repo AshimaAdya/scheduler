@@ -17,6 +17,7 @@ describe("canAccessRoute", () => {
   it("allows anyone (even unauthenticated) on public routes", () => {
     expect(canAccessRoute(null, "/login")).toBe(true);
     expect(canAccessRoute(null, "/accept-invite")).toBe(true);
+    expect(canAccessRoute(null, "/forgot-password")).toBe(true);
     expect(canAccessRoute(null, "/auth/confirm")).toBe(true);
   });
 

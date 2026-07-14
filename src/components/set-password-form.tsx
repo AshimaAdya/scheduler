@@ -4,21 +4,33 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export function AcceptInviteForm() {
+const MIN_PASSWORD_LENGTH = 8;
+
+/**
+ * Shared "choose a password" form for flows that arrive with an active session
+ * already established by /auth/confirm (invite acceptance and password reset).
+ * If there is no session (stale/expired link), sends the user back to login.
+ */
+export function SetPasswordForm({
+  submitLabel,
+  redirectTo = "/dashboard",
+}: {
+  submitLabel: string;
+  redirectTo?: string;
+}) {
   const supabase = createClient();
   const router = useRouter();
 
   const [ready, setReady] = useState(false);
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // The invite link was already exchanged for a session by /auth/confirm.
-  // Confirm a session exists before showing the form.
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
-        router.replace("/login?error=invite_expired");
+        router.replace("/login?error=link_expired");
         return;
       }
       setReady(true);
@@ -27,9 +39,18 @@ export function AcceptInviteForm() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Use at least ${MIN_PASSWORD_LENGTH} characters.`);
+      return;
+    }
+    if (password !== confirm) {
+      setError("Those passwords don't match.");
+      return;
+    }
+
+    setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
       setError(error.message);
@@ -37,7 +58,7 @@ export function AcceptInviteForm() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(redirectTo);
     router.refresh();
   }
 
@@ -50,9 +71,21 @@ export function AcceptInviteForm() {
         <input
           type="password"
           required
-          minLength={8}
+          minLength={MIN_PASSWORD_LENGTH}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="rounded border border-gray-300 px-3 py-2"
+          autoComplete="new-password"
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
+        Confirm password
+        <input
+          type="password"
+          required
+          minLength={MIN_PASSWORD_LENGTH}
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
           className="rounded border border-gray-300 px-3 py-2"
           autoComplete="new-password"
         />
@@ -63,7 +96,7 @@ export function AcceptInviteForm() {
         disabled={loading}
         className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
       >
-        {loading ? "Saving…" : "Set password"}
+        {loading ? "Saving…" : submitLabel}
       </button>
     </form>
   );

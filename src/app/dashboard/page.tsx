@@ -18,6 +18,16 @@ export default async function DashboardPage() {
         Signed in as <span className="font-semibold text-ink">{user.email}</span>{" "}
         ({role})
       </p>
+      <Card className="flex items-center justify-between">
+        <div>
+          <p className="font-semibold text-ink">{strings.availability.title}</p>
+          <p className="text-sm text-muted">{strings.availability.intro}</p>
+        </div>
+        <Link href="/availability" className={buttonClasses("secondary", "sm")}>
+          {strings.availability.managerTitle}
+        </Link>
+      </Card>
+
       {isManagerRole(role) && (
         <Card className="flex items-center justify-between">
           <div>

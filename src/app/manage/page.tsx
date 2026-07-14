@@ -29,6 +29,17 @@ export default function ManagePage() {
           </Card>
         </Link>
 
+        <Link href="/manage/availability" className="block">
+          <Card className="h-full transition-colors hover:border-accent">
+            <h2 className="text-lg font-semibold text-ink">
+              {strings.availability.gridTitle}
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              See and edit when your team is free, by location.
+            </p>
+          </Card>
+        </Link>
+
         <Link href="/manage/settings" className="block">
           <Card className="h-full transition-colors hover:border-accent">
             <h2 className="text-lg font-semibold text-ink">
