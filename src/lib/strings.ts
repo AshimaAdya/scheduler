@@ -81,4 +81,21 @@ export const strings = {
       admin: "Admin",
     },
   },
+
+  availability: {
+    title: "When can you work?",
+    managerTitle: "Availability",
+    intro: "Set the times you're usually free. This helps build your schedule.",
+    notAvailable: "Not available",
+    addRange: "Add a time",
+    save: "Save availability",
+    saved: "Availability saved.",
+    awayTitle: "Days I'm away",
+    awayHint: "Add a specific date you can't work.",
+    addAway: "Add a date I'm away",
+    away: "Away",
+    footnote: "Changes apply to next week's schedule onward.",
+    gridTitle: "Team availability",
+    gridEmpty: "No active team members at this location.",
+  },
 } as const;
