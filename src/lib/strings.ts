@@ -81,4 +81,29 @@ export const strings = {
       admin: "Admin",
     },
   },
+
+  settings: {
+    title: "Settings",
+    subtitle: "How scheduling and cover asks work for your business.",
+    saved: "Settings saved.",
+    save: "Save settings",
+    approvalLabel: "Review schedules before they go out",
+    approvalHint: "On means you approve each week. Off publishes automatically.",
+    approvalOn: "Review before publishing",
+    approvalOff: "Publish automatically",
+    sickTier1: "Sick call — ask the home team first for (minutes)",
+    sickTier2: "Sick call — then other locations for (minutes)",
+    dayoffTier1: "Planned day off — ask the home team first for (minutes)",
+    dayoffTier2: "Planned day off — then other locations for (minutes)",
+    windowsNote:
+      "New timings apply to new requests only. Requests already finding cover keep the timing they started with.",
+    timezone: "Timezone",
+    notifChannel: "How to reach your team by default",
+    notifFrom: "Sender name",
+    channels: {
+      email: "Email",
+      sms: "Text message",
+      both: "Text and email",
+    },
+  },
 } as const;

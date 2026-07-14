@@ -21,8 +21,12 @@ insert into businesses (id, name, settings) values (
     'approval_mode', 'require_approval',
     'timezone', 'America/Vancouver',
     'wait_windows', jsonb_build_object(
-      'sick_call', jsonb_build_object('tier1_minutes', 20,   'tier2_minutes', 20),
+      'sick_call', jsonb_build_object('tier1_minutes', 30,   'tier2_minutes', 30),
       'day_off',   jsonb_build_object('tier1_minutes', 1440, 'tier2_minutes', 1440)
+    ),
+    'notifications', jsonb_build_object(
+      'default_channel', 'both',
+      'from_name', 'Harbour Coffee Co.'
     )
   )
 );
