@@ -39,6 +39,17 @@ export default function ManagePage() {
             </p>
           </Card>
         </Link>
+
+        <Link href="/manage/settings" className="block">
+          <Card className="h-full transition-colors hover:border-accent">
+            <h2 className="text-lg font-semibold text-ink">
+              {strings.settings.title}
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              Approval mode, cover-ask timings, timezone, and notifications.
+            </p>
+          </Card>
+        </Link>
       </div>
     </main>
   );
