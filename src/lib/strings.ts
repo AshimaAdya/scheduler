@@ -147,4 +147,25 @@ export const strings = {
     turnOn: "Turn on",
     offNote: "Turning a pattern off stops it generating shifts, but keeps it for later.",
   },
+
+  schedule: {
+    title: "Schedule",
+    subtitle: "Generate and publish the weekly schedule for a location.",
+    location: "Location",
+    week: "Week starting (Monday)",
+    show: "Show",
+    generate: "Generate",
+    regenerate: "Re-generate draft",
+    publish: "Publish",
+    none: "No schedule for this week yet. Generate one to get started.",
+    draft: "Draft",
+    published: "Published",
+    assigned: "Assigned",
+    unfilled: "Unfilled",
+    autoNote: "Auto-publish is on, so generating publishes right away.",
+    reviewNote: "Review the draft, then publish when you're ready.",
+    publishedNote: "Published. Assigned employees have been notified.",
+    publishedLocked:
+      "This week is published — re-generating is disabled. Edits happen on the published schedule.",
+  },
 } as const;

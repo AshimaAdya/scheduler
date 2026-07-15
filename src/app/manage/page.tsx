@@ -51,6 +51,17 @@ export default function ManagePage() {
           </Card>
         </Link>
 
+        <Link href="/manage/schedule" className="block">
+          <Card className="h-full transition-colors hover:border-accent">
+            <h2 className="text-lg font-semibold text-ink">
+              {strings.schedule.title}
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              Generate and publish the weekly schedule.
+            </p>
+          </Card>
+        </Link>
+
         <Link href="/manage/settings" className="block">
           <Card className="h-full transition-colors hover:border-accent">
             <h2 className="text-lg font-semibold text-ink">
