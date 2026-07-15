@@ -160,3 +160,26 @@ insert into availability_rules (employee_id, kind, weekday, start_time, end_time
 insert into availability_rules (employee_id, kind, exception_date, is_available) values
   ('20000000-0000-0000-0000-000000000004', 'exception', '2026-07-11', false),
   ('20000000-0000-0000-0000-000000000008', 'exception', '2026-07-17', false);
+
+-- ── Shift patterns (templates) ───────────────────────────────────────────────
+-- Weekly demand per location. weekday: 0=Sun .. 6=Sat. Generated per weekday via
+-- generate_series so the schedule generator (SCH-13/14) has something to fill.
+
+-- Gastown: Mon–Fri day shift needs 2 cashiers + 1 supervisor, plus a morning barista.
+insert into shift_templates (location_id, weekday, start_time, end_time, required_skill, headcount)
+select '10000000-0000-0000-0000-000000000001', wd, '09:00', '17:00', 'cashier', 2
+  from generate_series(1, 5) as wd;
+insert into shift_templates (location_id, weekday, start_time, end_time, required_skill, headcount)
+select '10000000-0000-0000-0000-000000000001', wd, '09:00', '17:00', 'supervisor', 1
+  from generate_series(1, 5) as wd;
+insert into shift_templates (location_id, weekday, start_time, end_time, required_skill, headcount)
+select '10000000-0000-0000-0000-000000000001', wd, '06:00', '14:00', 'barista', 1
+  from generate_series(1, 5) as wd;
+
+-- Kitsilano: Tue–Sat day cashier, and a weekend barista.
+insert into shift_templates (location_id, weekday, start_time, end_time, required_skill, headcount)
+select '10000000-0000-0000-0000-000000000002', wd, '08:00', '16:00', 'cashier', 1
+  from generate_series(2, 6) as wd;
+insert into shift_templates (location_id, weekday, start_time, end_time, required_skill, headcount) values
+  ('10000000-0000-0000-0000-000000000002', 6, '10:00', '18:00', 'barista', 1),
+  ('10000000-0000-0000-0000-000000000002', 0, '10:00', '18:00', 'barista', 1);

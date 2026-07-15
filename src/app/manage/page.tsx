@@ -40,6 +40,17 @@ export default function ManagePage() {
           </Card>
         </Link>
 
+        <Link href="/manage/patterns" className="block">
+          <Card className="h-full transition-colors hover:border-accent">
+            <h2 className="text-lg font-semibold text-ink">
+              {strings.patterns.title}
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              The weekly shifts each location needs.
+            </p>
+          </Card>
+        </Link>
+
         <Link href="/manage/settings" className="block">
           <Card className="h-full transition-colors hover:border-accent">
             <h2 className="text-lg font-semibold text-ink">
