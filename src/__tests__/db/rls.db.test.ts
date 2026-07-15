@@ -104,7 +104,9 @@ beforeAll(async () => {
     .from("schedules")
     .insert({
       location_id: LOCATION_ID,
-      week_start: "2026-07-06",
+      // Distinct week per db-test file so parallel schedule inserts don't collide
+      // on the (location, week) unique constraint.
+      week_start: "2026-06-01",
       status: "published",
     })
     .select("id")

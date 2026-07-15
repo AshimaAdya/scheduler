@@ -20,6 +20,16 @@ export default async function DashboardPage() {
       </p>
       <Card className="flex items-center justify-between">
         <div>
+          <p className="font-semibold text-ink">{strings.mySchedule.title}</p>
+          <p className="text-sm text-muted">{strings.mySchedule.subtitle}</p>
+        </div>
+        <Link href="/schedule" className={buttonClasses("primary", "sm")}>
+          {strings.mySchedule.title}
+        </Link>
+      </Card>
+
+      <Card className="flex items-center justify-between">
+        <div>
           <p className="font-semibold text-ink">{strings.availability.title}</p>
           <p className="text-sm text-muted">{strings.availability.intro}</p>
         </div>
