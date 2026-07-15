@@ -82,6 +82,26 @@ export const strings = {
     },
   },
 
+  import: {
+    link: "Import CSV",
+    title: "Import team from CSV",
+    subtitle: "Upload a CSV to add many people at once. We'll email each an invite.",
+    downloadTemplate: "Download template",
+    choose: "Choose a CSV file",
+    preview: "Preview",
+    confirm: "Import valid rows",
+    importing: "Importing…",
+    columns: { line: "Line", name: "Name", email: "Email", status: "Status" },
+    ok: "Will import",
+    duplicate: "Skipped — already exists",
+    error: "Has a problem",
+    summary: (ok: number, dup: number, err: number) =>
+      `${ok} to import · ${dup} duplicate · ${err} with problems`,
+    done: (imported: number, skipped: number, failed: number) =>
+      `Imported ${imported}. Skipped ${skipped}. Failed ${failed}.`,
+    nothingValid: "No valid rows to import.",
+  },
+
   settings: {
     title: "Settings",
     subtitle: "How scheduling and cover asks work for your business.",
