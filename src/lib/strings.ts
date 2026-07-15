@@ -123,4 +123,28 @@ export const strings = {
     gridTitle: "Team availability",
     gridEmpty: "No active team members at this location.",
   },
+
+  patterns: {
+    title: "Shift patterns",
+    subtitle: "The weekly shifts each location needs. The schedule fills these with people.",
+    add: "Add a pattern",
+    addTitle: "Add a shift pattern",
+    editTitle: "Edit shift pattern",
+    empty: "No shift patterns yet. Add one to describe a weekly shift.",
+    inactive: "Off",
+    fields: {
+      location: "Location",
+      weekdays: "Days",
+      weekday: "Day",
+      start: "Start time",
+      end: "End time",
+      skill: "Skill needed",
+      skillHint: "e.g. barista, cashier, supervisor",
+      headcount: "How many people",
+    },
+    saved: "Pattern saved.",
+    turnOff: "Turn off",
+    turnOn: "Turn on",
+    offNote: "Turning a pattern off stops it generating shifts, but keeps it for later.",
+  },
 } as const;
