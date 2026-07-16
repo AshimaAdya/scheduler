@@ -168,6 +168,21 @@ export const strings = {
     offNote: "Turning a pattern off stops it generating shifts, but keeps it for later.",
   },
 
+  mySchedule: {
+    title: "My schedule",
+    subtitle: "Your upcoming shifts and open shifts you can pick up.",
+    upcoming: "My upcoming shifts",
+    noneUpcoming: "No upcoming shifts.",
+    pending: "Awaiting approval",
+    open: "Open shifts you can grab",
+    noneOpen: "No open shifts for you right now.",
+    claim: "Claim",
+    claiming: "Claiming…",
+    claimed: "Claimed.",
+    claimedPending: "Claimed — awaiting your manager's approval.",
+    onlyYours: "You only see your own shifts and open shifts here.",
+  },
+
   schedule: {
     title: "Schedule",
     subtitle: "Generate and publish the weekly schedule for a location.",
@@ -187,5 +202,11 @@ export const strings = {
     publishedNote: "Published. Assigned employees have been notified.",
     publishedLocked:
       "This week is published — re-generating is disabled. Edits happen on the published schedule.",
+    unassigned: "Unfilled",
+    reassignTitle: "Assign this shift",
+    noEligible: "No one is eligible for this shift right now.",
+    loadingEligible: "Checking who's eligible…",
+    close: "Close",
+    gridHint: "Tap a shift to assign or reassign it.",
   },
 } as const;
