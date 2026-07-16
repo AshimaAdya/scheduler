@@ -1,0 +1,12 @@
+<h2>Reset your password</h2>
+
+<p>We got a request to reset your ShiftCover password. Click below to choose a
+new one. This link expires soon.</p>
+
+<p>
+  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password">
+    Reset my password
+  </a>
+</p>
+
+<p>If you didn't ask for this, you can safely ignore this email.</p>

@@ -1,26 +1,45 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Design direction v1 (ShiftCover): calm minimal. Warm off-white background,
+ * white cards, hairline borders, no shadows or gradients. One accent (deep
+ * green) plus three status colors used identically on every screen. Radius
+ * 10–16px, two font weights (400/600), sentence case everywhere.
+ *
+ * Tokens are declared here (Tailwind v4 @theme) so utilities like `bg-bg`,
+ * `text-ink`, `border-line`, `bg-accent`, `rounded-card`, `text-warn` exist
+ * from the first screen — not retrofitted later.
+ */
+@theme {
+  --color-bg: #f4f3ef;
+  --color-surface: #ffffff;
+  --color-line: #e3e1da;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-ink: #22262a;
+  --color-muted: #6b7178;
+  --color-faint: #9aa0a6;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-accent: #0f6e56;
+  --color-accent-soft: #e1f5ee;
+
+  --color-warn: #ba7517;
+  --color-warn-soft: #faeeda;
+
+  --color-ok: #3b6d11;
+  --color-ok-soft: #eaf3de;
+
+  --color-danger: #a32d2d;
+  --color-danger-soft: #fcebeb;
+
+  --radius-card: 16px;
+  --radius-control: 10px;
+
+  --font-sans:
+    var(--font-geist-sans), -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
 }
