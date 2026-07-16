@@ -27,6 +27,12 @@ export default async function EmployeesPage() {
             <Link href="/manage" className={buttonClasses("secondary", "sm")}>
               ← {strings.manage.title}
             </Link>
+            <Link
+              href="/manage/employees/import"
+              className={buttonClasses("secondary", "sm")}
+            >
+              {strings.import.link}
+            </Link>
             <Link href="/manage/employees/new" className={buttonClasses("primary", "sm")}>
               {strings.team.add}
             </Link>
