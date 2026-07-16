@@ -167,5 +167,11 @@ export const strings = {
     publishedNote: "Published. Assigned employees have been notified.",
     publishedLocked:
       "This week is published — re-generating is disabled. Edits happen on the published schedule.",
+    unassigned: "Unfilled",
+    reassignTitle: "Assign this shift",
+    noEligible: "No one is eligible for this shift right now.",
+    loadingEligible: "Checking who's eligible…",
+    close: "Close",
+    gridHint: "Tap a shift to assign or reassign it.",
   },
 } as const;
