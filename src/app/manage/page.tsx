@@ -9,6 +9,15 @@ export default function ManagePage() {
       <PageHeader title={strings.manage.title} subtitle={strings.manage.subtitle} />
 
       <div className="grid gap-4 sm:grid-cols-2">
+        <Link href="/manage/coverage" className="block">
+          <Card className="h-full transition-colors hover:border-accent">
+            <h2 className="text-lg font-semibold text-ink">
+              {strings.coverage.title}
+            </h2>
+            <p className="mt-1 text-sm text-muted">{strings.coverage.subtitle}</p>
+          </Card>
+        </Link>
+
         <Link href="/manage/employees" className="block">
           <Card className="h-full transition-colors hover:border-accent">
             <h2 className="text-lg font-semibold text-ink">{strings.nav.team}</h2>

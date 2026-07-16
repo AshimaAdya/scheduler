@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getEmployeeSchedule } from "@/lib/schedule/employee-view";
 import { strings } from "@/lib/strings";
 import { ClaimButton } from "./claim-button";
+import { CantMakeItButton } from "./cant-make-it-button";
 
 export default async function MySchedulePage() {
   await requireUser();
@@ -44,10 +45,12 @@ export default async function MySchedulePage() {
                   {s.locationName ? ` · ${s.locationName}` : ""}
                 </p>
               </div>
-              {s.pendingApproval ? (
+              {s.coverageStatus ? (
+                <Chip tone="warn">{strings.mySchedule.findingCover}</Chip>
+              ) : s.pendingApproval ? (
                 <Chip tone="warn">{strings.mySchedule.pending}</Chip>
               ) : (
-                <Chip tone="ok">On</Chip>
+                <CantMakeItButton shiftId={s.id} />
               )}
             </Card>
           ))

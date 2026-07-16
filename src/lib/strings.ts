@@ -181,6 +181,33 @@ export const strings = {
     claimed: "Claimed.",
     claimedPending: "Claimed — awaiting your manager's approval.",
     onlyYours: "You only see your own shifts and open shifts here.",
+    cantMakeIt: "Can't make it",
+    cantMakeItConfirm: "Confirm — can't make it",
+    findingCover: "Finding cover",
+    reportError: "Something went wrong. Try again.",
+  },
+
+  coverage: {
+    title: "Cover requests",
+    subtitle: "Who's out, and how the search for cover is going.",
+    empty: "No cover requests right now.",
+    none: "—",
+    minutesLeft: (m: number) => (m > 0 ? `${m} min left` : "time's up"),
+    // Employee-facing status language (internal terms never reach the screen).
+    status: {
+      open: "Starting",
+      tier1_broadcast: "Asking the home team",
+      tier2_broadcast: "Asking other locations",
+      escalated: "Sent to a manager",
+      covered: "Covered",
+      cancelled: "Cancelled",
+      manager_resolved: "Sorted by manager",
+    },
+    triggers: {
+      sick_call: "Sick call",
+      day_off: "Day off",
+      direct_swap: "Swap",
+    },
   },
 
   schedule: {

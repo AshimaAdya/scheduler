@@ -17,6 +17,8 @@ export type EmployeeShift = {
   skill: string;
   locationName: string | null;
   pendingApproval: boolean;
+  /** Active coverage status for this shift (the employee reported out), or null. */
+  coverageStatus: string | null;
 };
 
 export type ClaimableShift = {
@@ -82,6 +84,16 @@ export async function getEmployeeSchedule(
     (ownAssignments ?? []).map((a) => [a.shift_id, a.pending_approval]),
   );
 
+  // Active coverage requests this employee started (RLS: requested_by = self).
+  const { data: coverageRows } = await client
+    .from("coverage_requests")
+    .select("shift_id, status")
+    .eq("requested_by", employeeId)
+    .in("status", ["open", "tier1_broadcast", "tier2_broadcast", "escalated"]);
+  const coverageByShift = new Map(
+    (coverageRows ?? []).map((c) => [c.shift_id, c.status]),
+  );
+
   // RLS returns only: the employee's own-assigned shifts + open (unassigned)
   // shifts, both in PUBLISHED schedules. Never another employee's shifts.
   const { data: visibleShifts } = await client
@@ -106,6 +118,7 @@ export async function getEmployeeSchedule(
         skill: s.required_skill,
         locationName: locationName(s),
         pendingApproval: pendingByShift.get(s.id) ?? false,
+        coverageStatus: coverageByShift.get(s.id) ?? null,
       });
     } else {
       openShifts.push(s);
