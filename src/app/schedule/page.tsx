@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getEmployeeSchedule } from "@/lib/schedule/employee-view";
 import { strings } from "@/lib/strings";
 import { ClaimButton } from "./claim-button";
-import { CantMakeItButton } from "./cant-make-it-button";
+import { ShiftActions } from "./shift-actions";
 
 export default async function MySchedulePage() {
   await requireUser();
@@ -50,7 +50,7 @@ export default async function MySchedulePage() {
               ) : s.pendingApproval ? (
                 <Chip tone="warn">{strings.mySchedule.pending}</Chip>
               ) : (
-                <CantMakeItButton shiftId={s.id} />
+                <ShiftActions shiftId={s.id} />
               )}
             </Card>
           ))

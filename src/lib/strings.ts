@@ -183,6 +183,8 @@ export const strings = {
     onlyYours: "You only see your own shifts and open shifts here.",
     cantMakeIt: "Can't make it",
     cantMakeItConfirm: "Confirm — can't make it",
+    dayOff: "Request day off",
+    dayOffConfirm: "Confirm — request day off",
     findingCover: "Finding cover",
     reportError: "Something went wrong. Try again.",
   },
@@ -193,6 +195,10 @@ export const strings = {
     empty: "No cover requests right now.",
     none: "—",
     minutesLeft: (m: number) => (m > 0 ? `${m} min left` : "time's up"),
+    approve: "Approve day off",
+    approving: "Approving…",
+    approved: "Day off approved",
+    awaitingApproval: "Waiting on you",
     // Employee-facing status language (internal terms never reach the screen).
     status: {
       open: "Starting",

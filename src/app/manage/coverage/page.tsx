@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveSettings } from "@/lib/settings/resolve";
 import { strings } from "@/lib/strings";
 import { CoverageCountdown } from "./coverage-countdown";
+import { ApproveDayOffButton } from "./approve-button";
 
 const ACTIVE = new Set(["tier1_broadcast", "tier2_broadcast", "escalated"]);
 const tone = (status: string) =>
@@ -34,13 +35,15 @@ export default async function CoveragePage() {
     supabase
       .from("coverage_requests")
       .select(
-        "id, status, trigger_type, tier_expires_at, requested_by, covered_by, shifts:shift_id(starts_at, ends_at, required_skill, locations:location_id(name))",
+        "id, status, trigger_type, tier_expires_at, time_off_approved_at, requested_by, covered_by, shifts:shift_id(starts_at, ends_at, required_skill, locations:location_id(name))",
       )
       .order("created_at", { ascending: false })
       .limit(50),
   ]);
 
-  const tz = resolveSettings(business?.settings).timezone;
+  const settings = resolveSettings(business?.settings);
+  const tz = settings.timezone;
+  const requireApproval = settings.approval_mode === "require_approval";
   const rows = requests ?? [];
 
   // Resolve requester / coverer names.
@@ -107,6 +110,15 @@ export default async function CoveragePage() {
                       <CoverageCountdown expiresAt={r.tier_expires_at} />
                     </span>
                   )}
+                  {r.trigger_type === "day_off" && r.time_off_approved_at && (
+                    <Chip tone="ok">{strings.coverage.approved}</Chip>
+                  )}
+                  {/* Manager confirmation only appears in require_approval mode,
+                      and only once coverage is confirmed. */}
+                  {r.trigger_type === "day_off" &&
+                    r.status === "covered" &&
+                    !r.time_off_approved_at &&
+                    requireApproval && <ApproveDayOffButton requestId={r.id} />}
                 </div>
               </Card>
             );
