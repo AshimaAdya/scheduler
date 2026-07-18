@@ -227,6 +227,19 @@ export const strings = {
     confirmSwap: "Confirm swap",
     confirmingSwap: "Confirming…",
     swapConfirmed: "Swap confirmed",
+    // Manager overrides (SCH-24)
+    override: "Manager options",
+    assignDirectly: "Assign someone",
+    cancelSearch: "Cancel request",
+    leaveUnfilled: "Approve, leave unfilled",
+    markHandled: "Mark handled",
+    confirm: "Tap again to confirm",
+    chooseAssignee: "Who should take this shift?",
+    overrideToggle: "Show everyone (override eligibility)",
+    overrideBadge: "override",
+    assign: "Assign",
+    close: "Close",
+    noneToAssign: "No one available to assign.",
     // Employee-facing status language (internal terms never reach the screen).
     status: {
       open: "Starting",

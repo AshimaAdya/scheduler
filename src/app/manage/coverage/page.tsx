@@ -10,8 +10,11 @@ import { strings } from "@/lib/strings";
 import { CoverageCountdown } from "./coverage-countdown";
 import { ApproveDayOffButton } from "./approve-button";
 import { ConfirmSwapButton } from "./confirm-swap-button";
+import { OverridePanel } from "./override-panel";
 
 const ACTIVE = new Set(["tier1_broadcast", "tier2_broadcast", "escalated"]);
+// A manager can override any unresolved broadcast (never a peer swap).
+const OVERRIDABLE = new Set(["open", "tier1_broadcast", "tier2_broadcast", "escalated"]);
 const tone = (status: string) =>
   status === "covered"
     ? "ok"
@@ -106,41 +109,47 @@ export default async function CoveragePage() {
               r.status;
             const coverer = r.covered_by ? nameById.get(r.covered_by) : null;
 
+            const canOverride =
+              r.trigger_type !== "direct_swap" && OVERRIDABLE.has(r.status);
+
             return (
-              <Card key={r.id} className="flex items-center justify-between gap-3 p-4">
-                <div>
-                  <p className="font-semibold text-ink">
-                    {when}
-                    {shift ? ` · ${shift.required_skill}` : ""}
-                    {locName ? ` · ${locName}` : ""}
-                  </p>
-                  <p className="text-sm text-muted">
-                    {strings.coverage.triggers[
-                      r.trigger_type as keyof typeof strings.coverage.triggers
-                    ] ?? r.trigger_type}
-                    {" · "}
-                    {nameById.get(r.requested_by) ?? "—"}
-                    {coverer ? ` · ${strings.coverage.status.covered} ${coverer}` : ""}
-                  </p>
+              <Card key={r.id} className="flex flex-col gap-3 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-ink">
+                      {when}
+                      {shift ? ` · ${shift.required_skill}` : ""}
+                      {locName ? ` · ${locName}` : ""}
+                    </p>
+                    <p className="text-sm text-muted">
+                      {strings.coverage.triggers[
+                        r.trigger_type as keyof typeof strings.coverage.triggers
+                      ] ?? r.trigger_type}
+                      {" · "}
+                      {nameById.get(r.requested_by) ?? "—"}
+                      {coverer ? ` · ${strings.coverage.status.covered} ${coverer}` : ""}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <Chip tone={tone(r.status)}>{statusLabel}</Chip>
+                    {ACTIVE.has(r.status) && r.tier_expires_at && (
+                      <span className="text-xs text-faint">
+                        <CoverageCountdown expiresAt={r.tier_expires_at} />
+                      </span>
+                    )}
+                    {r.trigger_type === "day_off" && r.time_off_approved_at && (
+                      <Chip tone="ok">{strings.coverage.approved}</Chip>
+                    )}
+                    {/* Manager confirmation only appears in require_approval mode,
+                        and only once coverage is confirmed. */}
+                    {r.trigger_type === "day_off" &&
+                      r.status === "covered" &&
+                      !r.time_off_approved_at &&
+                      requireApproval && <ApproveDayOffButton requestId={r.id} />}
+                    {swapNeedsConfirm(r) && <ConfirmSwapButton requestId={r.id} />}
+                  </div>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <Chip tone={tone(r.status)}>{statusLabel}</Chip>
-                  {ACTIVE.has(r.status) && r.tier_expires_at && (
-                    <span className="text-xs text-faint">
-                      <CoverageCountdown expiresAt={r.tier_expires_at} />
-                    </span>
-                  )}
-                  {r.trigger_type === "day_off" && r.time_off_approved_at && (
-                    <Chip tone="ok">{strings.coverage.approved}</Chip>
-                  )}
-                  {/* Manager confirmation only appears in require_approval mode,
-                      and only once coverage is confirmed. */}
-                  {r.trigger_type === "day_off" &&
-                    r.status === "covered" &&
-                    !r.time_off_approved_at &&
-                    requireApproval && <ApproveDayOffButton requestId={r.id} />}
-                  {swapNeedsConfirm(r) && <ConfirmSwapButton requestId={r.id} />}
-                </div>
+                {canOverride && <OverridePanel requestId={r.id} />}
               </Card>
             );
           })}
