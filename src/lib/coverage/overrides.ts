@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveSettings } from "@/lib/settings/resolve";
-import { LoggingNotificationService } from "@/lib/notifications/logging-service";
+import { getNotificationService } from "@/lib/notifications/factory";
 import type { NotificationService } from "@/lib/notifications/types";
 import { transition } from "./transition";
 import { findCoverageCandidates } from "./eligible";
@@ -115,7 +115,7 @@ export async function managerAssign(
     return { ok: false, error: "Could not assign — please try again." };
   }
 
-  const notifier = params.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = params.notifier ?? getNotificationService(supabase);
   await notifier.send([
     {
       recipientEmployeeId: params.assigneeId,
@@ -155,7 +155,7 @@ export async function cancelRequest(
   } catch {
     return { ok: false, error: "This request was just resolved." };
   }
-  const notifier = params.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = params.notifier ?? getNotificationService(supabase);
   await notifyReporter(notifier, req, "coverage_cancelled");
   return { ok: true };
 }
@@ -189,7 +189,7 @@ export async function forceApproveUncovered(
   } catch {
     return { ok: false, error: "This request was just resolved." };
   }
-  const notifier = params.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = params.notifier ?? getNotificationService(supabase);
   await notifyReporter(notifier, req, "coverage_absence_approved");
   return { ok: true };
 }
@@ -214,7 +214,7 @@ export async function resolveManually(
   } catch {
     return { ok: false, error: "This request was just resolved." };
   }
-  const notifier = params.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = params.notifier ?? getNotificationService(supabase);
   await notifyReporter(notifier, req, "coverage_resolved_manually");
   return { ok: true };
 }

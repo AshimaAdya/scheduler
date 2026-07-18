@@ -1,21 +1,27 @@
 /**
- * Provider-agnostic notification contract. Real channels (Resend email, Twilio
- * SMS) arrive in Milestone 4 (SCH-25+); until then a logging stub implements this
- * and records every send to `notifications_log` so there's an audit trail.
+ * Provider-agnostic notification contract. The real service (SCH-25) renders each
+ * template and delivers via registered channels (Resend email now, Twilio SMS in
+ * SCH-26), recording every attempt in `notifications_log`. A logging stub also
+ * implements this for tests.
  */
 export type NotificationChannel = "email" | "sms";
 
 export type NotificationMessage = {
   recipientEmployeeId: string;
-  channel: NotificationChannel;
+  /**
+   * @deprecated Ignored for routing since SCH-25 — the service delivers on every
+   * channel in `businesses.settings.notifications.default_channel`. Kept optional
+   * so existing callers still compile.
+   */
+  channel?: NotificationChannel;
   /** Template identifier, e.g. "schedule_published". */
   template: string;
-  /** Rendered content / context, stored for the audit trail. */
+  /** Context for rendering + the audit-trail snapshot. */
   payload: Record<string, unknown>;
   coverageRequestId?: string;
 };
 
 export interface NotificationService {
-  /** Deliver (or, for the stub, log) a batch of notifications. */
+  /** Deliver (and log) a batch of notifications. */
   send(messages: NotificationMessage[]): Promise<void>;
 }

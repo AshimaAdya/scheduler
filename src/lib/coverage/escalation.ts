@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { LoggingNotificationService } from "@/lib/notifications/logging-service";
+import { getNotificationService } from "@/lib/notifications/factory";
 import type {
   NotificationMessage,
   NotificationService,
@@ -65,7 +65,7 @@ export async function advanceExpiredTiers(
   opts: { now?: Date; notifier?: NotificationService } = {},
 ): Promise<SweepSummary> {
   const now = opts.now ?? new Date();
-  const notifier = opts.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = opts.notifier ?? getNotificationService(supabase);
   const summary: SweepSummary = { advanced: 0, escalated: 0, skipped: 0 };
 
   const { data: requests } = await supabase

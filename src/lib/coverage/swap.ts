@@ -9,7 +9,7 @@ import {
   toSchedulerSlot,
   type AvailabilityRow,
 } from "@/lib/schedule/build-input";
-import { LoggingNotificationService } from "@/lib/notifications/logging-service";
+import { getNotificationService } from "@/lib/notifications/factory";
 import type {
   NotificationMessage,
   NotificationService,
@@ -301,7 +301,7 @@ export async function proposeSwap(
   });
   if (offerError) return { ok: false, error: offerError.message };
 
-  const notifier = params.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = params.notifier ?? getNotificationService(supabase);
   await notifier.send([
     {
       recipientEmployeeId: params.targetEmployeeId,
@@ -416,7 +416,7 @@ export async function acceptSwap(
   });
   if (error) return { ok: false, error: friendlyAcceptError(error.message ?? "") };
 
-  const notifier = params.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = params.notifier ?? getNotificationService(supabase);
   const messages: NotificationMessage[] = [
     {
       recipientEmployeeId: req.requested_by,
@@ -473,7 +473,7 @@ export async function declineSwap(
     detail: { reason: "swap_declined" },
   });
 
-  const notifier = params.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = params.notifier ?? getNotificationService(supabase);
   await notifier.send([
     {
       recipientEmployeeId: req.requested_by,

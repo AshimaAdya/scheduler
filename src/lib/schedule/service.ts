@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { generateWeekSlots } from "@/lib/scheduler/generate-slots";
 import { GreedyScheduleGenerator } from "@/lib/scheduler/greedy";
 import { resolveSettings } from "@/lib/settings/resolve";
-import { LoggingNotificationService } from "@/lib/notifications/logging-service";
+import { getNotificationService } from "@/lib/notifications/factory";
 import type { NotificationService } from "@/lib/notifications/types";
 import {
   toSchedulerEmployee,
@@ -208,7 +208,7 @@ export async function publishSchedule(
     recipientIds = [...new Set((assignments ?? []).map((a) => a.employee_id))];
   }
 
-  const notifier = params.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = params.notifier ?? getNotificationService(supabase);
   await notifier.send(
     recipientIds.map((id) => ({
       recipientEmployeeId: id,

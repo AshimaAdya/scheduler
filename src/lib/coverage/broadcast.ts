@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveSettings } from "@/lib/settings/resolve";
 import { waitWindowsFor } from "@/lib/settings/wait-windows";
 import type { WindowedTrigger } from "@/lib/settings/types";
-import { LoggingNotificationService } from "@/lib/notifications/logging-service";
+import { getNotificationService } from "@/lib/notifications/factory";
 import type {
   NotificationMessage,
   NotificationService,
@@ -114,7 +114,7 @@ export async function startCoverageBroadcast(
     detail: { trigger: params.triggerType, candidates: candidates.length },
   });
 
-  const notifier = params.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = params.notifier ?? getNotificationService(supabase);
   const messages: NotificationMessage[] = candidates.map((c) => ({
     recipientEmployeeId: c.id,
     channel: "sms",

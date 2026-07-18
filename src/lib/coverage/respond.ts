@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { formatInTimeZone } from "date-fns-tz";
 import { resolveSettings } from "@/lib/settings/resolve";
-import { LoggingNotificationService } from "@/lib/notifications/logging-service";
+import { getNotificationService } from "@/lib/notifications/factory";
 import type {
   NotificationMessage,
   NotificationService,
@@ -123,7 +123,7 @@ export async function acceptCoverageOffer(
     return { ok: false, error: "Could not confirm — please try again." };
   }
 
-  const notifier = params.notifier ?? new LoggingNotificationService(supabase);
+  const notifier = params.notifier ?? getNotificationService(supabase);
   const messages: NotificationMessage[] = [
     {
       recipientEmployeeId: params.actorEmployeeId,

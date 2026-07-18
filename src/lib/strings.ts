@@ -257,6 +257,23 @@ export const strings = {
     },
   },
 
+  notifications: {
+    title: "Message log",
+    subtitle: "Every text and email we've tried to send, and whether it went out.",
+    empty: "No messages yet.",
+    columns: { to: "To", message: "Message", channel: "Channel", status: "Status", when: "When" },
+    status: {
+      sent: "Sent",
+      delivered: "Delivered",
+      queued: "Queued",
+      failed: "Failed",
+    },
+    channels: { email: "Email", sms: "Text" },
+    previewTitle: "Message previews",
+    previewSubtitle: "How each message reads with sample details.",
+    manageCard: "See what we've sent your team and spot any failures.",
+  },
+
   schedule: {
     title: "Schedule",
     subtitle: "Generate and publish the weekly schedule for a location.",
