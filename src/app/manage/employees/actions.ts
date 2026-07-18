@@ -24,6 +24,7 @@ function readForm(formData: FormData): Partial<EmployeeInput> {
     skills: String(formData.get("skills") ?? ""),
     max_weekly_hours: String(formData.get("max_weekly_hours") ?? ""),
     home_location_id: String(formData.get("home_location_id") ?? ""),
+    notify_pref: String(formData.get("notify_pref") ?? "both"),
   };
 }
 
@@ -48,6 +49,7 @@ export async function createEmployee(
       skills: parsed.data.skills,
       max_weekly_hours: parsed.data.max_weekly_hours,
       home_location_id: parsed.data.home_location_id,
+      notify_pref: parsed.data.notify_pref,
     })
     .select("id")
     .single();
@@ -97,6 +99,7 @@ export async function updateEmployee(
       skills: parsed.data.skills,
       max_weekly_hours: parsed.data.max_weekly_hours,
       home_location_id: parsed.data.home_location_id,
+      notify_pref: parsed.data.notify_pref,
     })
     .eq("id", id);
 

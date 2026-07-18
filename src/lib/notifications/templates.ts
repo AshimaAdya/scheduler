@@ -1,4 +1,5 @@
 import { APP_NAME } from "@/lib/strings";
+import type { NotificationChannel } from "./types";
 import type { RenderedMessage } from "./channels/types";
 
 /**
@@ -30,15 +31,24 @@ function nameList(names: string[] | undefined): string {
   return names && names.length > 0 ? names.join(", ") : "no one";
 }
 
-type Renderer = (ctx: TemplateContext) => { subject: string; text: string };
+type Rendered = { subject: string; text: string };
+type Renderer = (ctx: TemplateContext) => Rendered;
 
-/** Registry keyed by the template ids emitted across the coverage/schedule flows. */
+/** Email rendering (subject + body), keyed by the template ids the flows emit. */
 const TEMPLATES: Record<string, Renderer> = {
   coverage_started: (ctx) => ({
     subject: "Looking for cover",
     text: `Hi ${ctx.recipientName}, we're finding cover for ${shiftPhrase(ctx)}. ${
       ctx.candidates ?? 0
     } ${ctx.candidates === 1 ? "person" : "people"} asked so far.`,
+  }),
+  coverage_ask: (ctx) => ({
+    subject: "Can you cover a shift?",
+    text: `Hi ${ctx.recipientName}, ${shiftPhrase(ctx)} needs cover. Open ${APP_NAME} to pick it up.`,
+  }),
+  coverage_ask_day_off: (ctx) => ({
+    subject: "Can you cover a shift?",
+    text: `Hi ${ctx.recipientName}, ${shiftPhrase(ctx)} needs cover. Open ${APP_NAME} to pick it up.`,
   }),
   coverage_ask_other_location: (ctx) => ({
     subject: "Can you cover a shift?",
@@ -89,17 +99,36 @@ No response: ${nameList(ctx.noResponse)}.`,
   }),
 };
 
+/**
+ * SMS-specific bodies where they differ from email — the cover asks tell people
+ * how to reply (inbound handling lands in SCH-27). Anything not listed reuses the
+ * email body text.
+ */
+const SMS_TEXT: Record<string, (ctx: TemplateContext) => string> = {
+  coverage_ask: (ctx) => `${shiftPhrase(ctx)} needs cover. Reply YES to take it, NO to pass.`,
+  coverage_ask_day_off: (ctx) =>
+    `${shiftPhrase(ctx)} needs cover. Reply YES to take it, NO to pass.`,
+  coverage_ask_other_location: (ctx) =>
+    `${shiftPhrase(ctx)} needs cover. Reply YES to take it, NO to pass.`,
+};
+
 /** All known template ids (used by the dev preview + drift test). */
 export const TEMPLATE_IDS = Object.keys(TEMPLATES);
 
-/** Render a template to subject + text. Unknown ids fall back to a safe generic. */
-export function renderTemplate(template: string, ctx: TemplateContext): RenderedMessage {
-  const renderer =
-    TEMPLATES[template] ??
-    ((c: TemplateContext) => ({
-      subject: `${c.fromName}: an update`,
-      text: `Hi ${c.recipientName}, you have an update in ${APP_NAME}.`,
-    }));
-  const { subject, text } = renderer(ctx);
-  return { subject, text };
+const fallback: Renderer = (ctx) => ({
+  subject: `${ctx.fromName}: an update`,
+  text: `Hi ${ctx.recipientName}, you have an update in ${APP_NAME}.`,
+});
+
+/** Render a template for a channel. Unknown ids fall back to a safe generic. */
+export function renderTemplate(
+  template: string,
+  channel: NotificationChannel,
+  ctx: TemplateContext,
+): RenderedMessage {
+  const base = (TEMPLATES[template] ?? fallback)(ctx);
+  if (channel === "sms") {
+    return { subject: base.subject, text: SMS_TEXT[template]?.(ctx) ?? base.text };
+  }
+  return { subject: base.subject, text: base.text };
 }

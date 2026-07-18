@@ -70,14 +70,12 @@ export class MultiChannelNotificationService implements NotificationService {
       .limit(1)
       .maybeSingle();
     const settings = resolveSettings(business?.settings);
-    const targetKinds = expandChannels(settings.notifications.default_channel);
-    const hasAnyChannel = targetKinds.some((k) => this.channels.has(k));
 
     const recipientIds = [...new Set(messages.map((m) => m.recipientEmployeeId))];
     const { data: emps } = recipientIds.length
       ? await this.supabase
           .from("employees")
-          .select("id, full_name, email, phone")
+          .select("id, full_name, email, phone, notify_pref")
           .in("id", recipientIds)
       : { data: [] };
     const empById = new Map((emps ?? []).map((e) => [e.id, e]));
@@ -101,11 +99,18 @@ export class MultiChannelNotificationService implements NotificationService {
         { recipientName: recipient.name, fromName: settings.notifications.from_name },
         shiftContexts,
       );
-      const rendered = renderTemplate(m.template, ctx);
 
-      for (const kind of targetKinds) {
+      // Per-employee preference wins; fall back to the business default.
+      const pref =
+        (emp?.notify_pref as NotificationChannelPref | undefined) ??
+        settings.notifications.default_channel;
+      const kinds = expandChannels(pref);
+      const hasAnyChannel = kinds.some((k) => this.channels.has(k));
+
+      for (const kind of kinds) {
         const channel = this.channels.get(kind);
-        if (!channel) continue; // no delivery for this kind yet (e.g. SMS pre-SCH-26)
+        if (!channel) continue; // no delivery for this kind yet (e.g. SMS not enabled)
+        const rendered = renderTemplate(m.template, kind, ctx);
         try {
           const { providerMessageId } = await sendWithRetry(
             channel,
@@ -124,7 +129,7 @@ export class MultiChannelNotificationService implements NotificationService {
       // Nothing could be delivered (no channel for any preferred kind) — still
       // record the intent so the audit trail is complete.
       if (!hasAnyChannel) {
-        await this.log(m, targetKinds[0] ?? "email", "queued", {});
+        await this.log(m, kinds[0] ?? "email", "queued", {});
       }
     }
   }
@@ -141,7 +146,7 @@ export class MultiChannelNotificationService implements NotificationService {
       channel,
       template: m.template,
       status,
-      provider: channel === "email" ? "resend" : null,
+      provider: channel === "email" ? "resend" : channel === "sms" ? "twilio" : null,
       provider_message_id: extra.providerMessageId ?? null,
       error: extra.error ?? null,
       payload: m.payload,

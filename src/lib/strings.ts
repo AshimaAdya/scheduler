@@ -74,6 +74,7 @@ export const strings = {
       skillsHint: "Separate skills with commas, e.g. barista, cashier",
       maxHours: "Max hours per week",
       homeLocation: "Home location",
+      notifyPref: "How to reach them",
     },
     roles: {
       employee: "Employee",

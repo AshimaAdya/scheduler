@@ -16,6 +16,7 @@ type EmployeeValues = {
   skills: string[];
   max_weekly_hours: number;
   home_location_id: string | null;
+  notify_pref: string;
 };
 
 type Props = {
@@ -101,6 +102,15 @@ export function EmployeeForm({ mode, employee, locations }: Props) {
             {loc.name}
           </option>
         ))}
+      </SelectField>
+      <SelectField
+        label={f.notifyPref}
+        name="notify_pref"
+        defaultValue={employee?.notify_pref ?? "both"}
+      >
+        <option value="both">{strings.settings.channels.both}</option>
+        <option value="email">{strings.settings.channels.email}</option>
+        <option value="sms">{strings.settings.channels.sms}</option>
       </SelectField>
 
       {mode === "create" && (

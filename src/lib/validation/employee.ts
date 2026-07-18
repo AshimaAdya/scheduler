@@ -1,5 +1,6 @@
 import { normalizeToE164 } from "@/lib/phone";
 import type { AppRole } from "@/lib/auth/routes";
+import type { NotificationChannelPref } from "@/lib/settings/types";
 
 /** Raw form values (all strings, as they arrive from a FormData submit). */
 export type EmployeeInput = {
@@ -10,6 +11,7 @@ export type EmployeeInput = {
   skills: string; // comma-separated
   max_weekly_hours: string;
   home_location_id: string;
+  notify_pref: string;
 };
 
 /** Cleaned, typed values ready to write to the employees table. */
@@ -21,6 +23,7 @@ export type EmployeeDraft = {
   skills: string[];
   max_weekly_hours: number;
   home_location_id: string | null;
+  notify_pref: NotificationChannelPref;
 };
 
 export type FieldErrors = Partial<Record<keyof EmployeeInput, string>>;
@@ -30,6 +33,7 @@ export type ValidationResult =
   | { ok: false; errors: FieldErrors };
 
 const ROLES: AppRole[] = ["employee", "manager", "admin"];
+const CHANNEL_PREFS: NotificationChannelPref[] = ["email", "sms", "both"];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** Parse "barista, Cashier ,barista" → ["barista","cashier"] (trimmed, lowercased, deduped). */
@@ -80,6 +84,11 @@ export function validateEmployee(
   const skills = parseSkills(input.skills ?? "");
   const home_location_id = (input.home_location_id ?? "").trim() || null;
 
+  const prefRaw = (input.notify_pref ?? "both").trim();
+  const notify_pref = (CHANNEL_PREFS as string[]).includes(prefRaw)
+    ? (prefRaw as NotificationChannelPref)
+    : "both";
+
   if (Object.keys(errors).length > 0) return { ok: false, errors };
 
   return {
@@ -92,6 +101,7 @@ export function validateEmployee(
       skills,
       max_weekly_hours,
       home_location_id,
+      notify_pref,
     },
   };
 }

@@ -37,12 +37,20 @@ export default async function NotificationsPreviewPage() {
 
       <div className="flex flex-col gap-3">
         {TEMPLATE_IDS.map((id) => {
-          const { subject, text } = renderTemplate(id, SAMPLE);
+          const email = renderTemplate(id, "email", SAMPLE);
+          const sms = renderTemplate(id, "sms", SAMPLE);
           return (
-            <Card key={id} className="flex flex-col gap-1 p-4">
+            <Card key={id} className="flex flex-col gap-2 p-4">
               <p className="text-xs text-faint">{id}</p>
-              <p className="font-semibold text-ink">{subject}</p>
-              <p className="whitespace-pre-line text-sm text-muted">{text}</p>
+              <div>
+                <p className="text-xs text-faint">Email</p>
+                <p className="font-semibold text-ink">{email.subject}</p>
+                <p className="whitespace-pre-line text-sm text-muted">{email.text}</p>
+              </div>
+              <div>
+                <p className="text-xs text-faint">Text</p>
+                <p className="whitespace-pre-line text-sm text-muted">{sms.text}</p>
+              </div>
             </Card>
           );
         })}

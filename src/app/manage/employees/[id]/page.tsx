@@ -23,7 +23,7 @@ export default async function EmployeeDetailPage({
     supabase
       .from("employees")
       .select(
-        "id, full_name, email, phone, role, skills, max_weekly_hours, home_location_id, active",
+        "id, full_name, email, phone, role, skills, max_weekly_hours, home_location_id, notify_pref, active",
       )
       .eq("id", id)
       .maybeSingle(),
