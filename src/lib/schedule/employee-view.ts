@@ -19,6 +19,8 @@ export type EmployeeShift = {
   pendingApproval: boolean;
   /** Active coverage status for this shift (the employee reported out), or null. */
   coverageStatus: string | null;
+  /** Which trigger opened that coverage request (sick_call | day_off | direct_swap). */
+  coverageTrigger: string | null;
 };
 
 export type ClaimableShift = {
@@ -87,11 +89,11 @@ export async function getEmployeeSchedule(
   // Active coverage requests this employee started (RLS: requested_by = self).
   const { data: coverageRows } = await client
     .from("coverage_requests")
-    .select("shift_id, status")
+    .select("shift_id, status, trigger_type")
     .eq("requested_by", employeeId)
     .in("status", ["open", "tier1_broadcast", "tier2_broadcast", "escalated"]);
   const coverageByShift = new Map(
-    (coverageRows ?? []).map((c) => [c.shift_id, c.status]),
+    (coverageRows ?? []).map((c) => [c.shift_id, { status: c.status, trigger: c.trigger_type }]),
   );
 
   // RLS returns only: the employee's own-assigned shifts + open (unassigned)
@@ -118,7 +120,8 @@ export async function getEmployeeSchedule(
         skill: s.required_skill,
         locationName: locationName(s),
         pendingApproval: pendingByShift.get(s.id) ?? false,
-        coverageStatus: coverageByShift.get(s.id) ?? null,
+        coverageStatus: coverageByShift.get(s.id)?.status ?? null,
+        coverageTrigger: coverageByShift.get(s.id)?.trigger ?? null,
       });
     } else {
       openShifts.push(s);

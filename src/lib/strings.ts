@@ -187,6 +187,26 @@ export const strings = {
     dayOffConfirm: "Confirm — request day off",
     findingCover: "Finding cover",
     reportError: "Something went wrong. Try again.",
+    // Direct swap
+    swap: "Swap a shift",
+    swapProposed: "Swap proposed",
+    swapTitle: "Propose a swap",
+    pickCoworker: "Who could take this shift?",
+    pickTheirShift: "Pick one of their shifts to take in return",
+    propose: "Propose swap",
+    proposing: "Proposing…",
+    noCandidates: "No coworkers can take this shift right now.",
+    noTradeable: "None of their shifts work with your schedule right now.",
+    back: "Back",
+    incoming: "Swap requests for you",
+    youGive: "You give",
+    youGet: "You get",
+    accept: "Accept",
+    accepting: "Accepting…",
+    decline: "Decline",
+    declining: "Declining…",
+    swapFellThrough: "Swaps that fell through",
+    broadcastInstead: "Ask the team to cover",
   },
 
   coverage: {
@@ -199,6 +219,9 @@ export const strings = {
     approving: "Approving…",
     approved: "Day off approved",
     awaitingApproval: "Waiting on you",
+    confirmSwap: "Confirm swap",
+    confirmingSwap: "Confirming…",
+    swapConfirmed: "Swap confirmed",
     // Employee-facing status language (internal terms never reach the screen).
     status: {
       open: "Starting",

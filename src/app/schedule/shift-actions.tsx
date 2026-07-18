@@ -9,6 +9,7 @@ import {
   requestDayOffAction,
   type CoverageActionResult,
 } from "./actions";
+import { SwapProposer } from "./swap-proposer";
 
 type Variant = "primary" | "secondary" | "danger";
 
@@ -76,6 +77,7 @@ export function ShiftActions({ shiftId }: { shiftId: string }) {
         variant="secondary"
         run={() => requestDayOffAction(shiftId)}
       />
+      <SwapProposer shiftId={shiftId} />
     </div>
   );
 }

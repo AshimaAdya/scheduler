@@ -9,6 +9,7 @@ import { resolveSettings } from "@/lib/settings/resolve";
 import { strings } from "@/lib/strings";
 import { CoverageCountdown } from "./coverage-countdown";
 import { ApproveDayOffButton } from "./approve-button";
+import { ConfirmSwapButton } from "./confirm-swap-button";
 
 const ACTIVE = new Set(["tier1_broadcast", "tier2_broadcast", "escalated"]);
 const tone = (status: string) =>
@@ -35,7 +36,7 @@ export default async function CoveragePage() {
     supabase
       .from("coverage_requests")
       .select(
-        "id, status, trigger_type, tier_expires_at, time_off_approved_at, requested_by, covered_by, shifts:shift_id(starts_at, ends_at, required_skill, locations:location_id(name))",
+        "id, status, trigger_type, tier_expires_at, time_off_approved_at, requested_by, covered_by, shift_id, offered_shift_id, shifts:shift_id(starts_at, ends_at, required_skill, locations:location_id(name))",
       )
       .order("created_at", { ascending: false })
       .limit(50),
@@ -56,6 +57,25 @@ export default async function CoveragePage() {
     ? await supabase.from("employees").select("id, full_name").in("id", empIds)
     : { data: [] };
   const nameById = new Map((emps ?? []).map((e) => [e.id, e.full_name]));
+
+  // A covered swap still needs a manager's confirmation while either swapped
+  // assignment is pending_approval (require_approval mode).
+  const swapShiftIds = rows
+    .filter((r) => r.trigger_type === "direct_swap" && r.status === "covered")
+    .flatMap((r) => [r.shift_id, r.offered_shift_id].filter(Boolean) as string[]);
+  const { data: pendingAssignments } = swapShiftIds.length
+    ? await supabase
+        .from("shift_assignments")
+        .select("shift_id")
+        .in("shift_id", swapShiftIds)
+        .eq("pending_approval", true)
+    : { data: [] };
+  const pendingShiftIds = new Set((pendingAssignments ?? []).map((a) => a.shift_id));
+  const swapNeedsConfirm = (r: (typeof rows)[number]) =>
+    r.trigger_type === "direct_swap" &&
+    r.status === "covered" &&
+    (pendingShiftIds.has(r.shift_id) ||
+      (r.offered_shift_id ? pendingShiftIds.has(r.offered_shift_id) : false));
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 p-6">
@@ -119,6 +139,7 @@ export default async function CoveragePage() {
                     r.status === "covered" &&
                     !r.time_off_approved_at &&
                     requireApproval && <ApproveDayOffButton requestId={r.id} />}
+                  {swapNeedsConfirm(r) && <ConfirmSwapButton requestId={r.id} />}
                 </div>
               </Card>
             );

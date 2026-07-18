@@ -1,8 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import {
-  assertLegalTransition,
-  type CoverageStatus,
-} from "./state-machine";
+import { IllegalTransitionError, type CoverageStatus } from "./state-machine";
 
 export type TransitionParams = {
   requestId: string;
@@ -26,14 +23,19 @@ export class TransitionConflictError extends Error {
 }
 
 /**
- * The SINGLE place that mutates `coverage_requests.status`. It:
- *  1. reads the current status,
- *  2. asserts the transition is legal (throws IllegalTransitionError otherwise),
- *  3. applies the change with a compare-and-swap guard (`status = from`) so two
- *     concurrent transitions can't both apply, and
- *  4. writes a `coverage_audit_log` row.
+ * The single entry point for mutating `coverage_requests.status`. It delegates to
+ * the `coverage_transition` SQL function (migration 20260716130000), which is the
+ * CANONICAL sole writer of status: it reads the current status, asserts the
+ * transition is legal, applies a compare-and-swap (`status = from`), stamps
+ * `covered_at`/`resolved_at`, and appends a `coverage_audit_log` row — all in one
+ * transaction. Lifting this into SQL means the atomic swap path (`accept_swap`)
+ * can flip a request to 'covered' through the SAME logic from inside its own
+ * transaction, so the single-writer invariant holds at the DB level.
  *
- * Timestamps `covered_at` / `resolved_at` are set as part of the same write.
+ * `patch` carries status-adjacent columns written atomically WITH the status. The
+ * SQL side honours a bounded allow-list (`covered_by`, `tier_expires_at`); adding
+ * a new key means adding it to the function too.
+ *
  * (Note: the DB CHECK requires `covered_by` when moving to 'covered', so callers
  * moving to 'covered' must pass it in `patch`.)
  */
@@ -41,6 +43,9 @@ export async function transition(
   supabase: SupabaseClient,
   params: TransitionParams,
 ): Promise<CoverageStatus> {
+  // Read the observed `from` (also surfaces "not found"); the SQL function checks
+  // legality against it and compare-and-swaps on it — so two racing transitions
+  // still resolve to exactly one winner (the loser gets a transition_conflict).
   const { data: current, error: readError } = await supabase
     .from("coverage_requests")
     .select("status")
@@ -49,39 +54,27 @@ export async function transition(
   if (readError) throw new Error(readError.message);
   if (!current) throw new Error(`Coverage request ${params.requestId} not found.`);
 
-  const from = current.status as CoverageStatus;
-  assertLegalTransition(from, params.to);
-
-  const now = new Date().toISOString();
-  const patch: Record<string, unknown> = {
-    status: params.to,
-    ...(params.patch ?? {}),
-  };
-  if (params.to === "covered") patch.covered_at = now;
-  if (params.to === "cancelled" || params.to === "manager_resolved") {
-    patch.resolved_at = now;
-  }
-
-  // Compare-and-swap: only apply if the status is still `from`.
-  const { data: updated, error: updateError } = await supabase
-    .from("coverage_requests")
-    .update(patch)
-    .eq("id", params.requestId)
-    .eq("status", from)
-    .select("id");
-  if (updateError) throw new Error(updateError.message);
-  if (!updated || updated.length === 0) {
-    throw new TransitionConflictError(params.requestId);
-  }
-
-  const { error: auditError } = await supabase.from("coverage_audit_log").insert({
-    coverage_request_id: params.requestId,
-    from_status: from,
-    to_status: params.to,
-    actor_employee_id: params.actorEmployeeId ?? null,
-    detail: params.detail ?? null,
+  const { error } = await supabase.rpc("coverage_transition", {
+    p_request_id: params.requestId,
+    p_from: current.status as CoverageStatus,
+    p_to: params.to,
+    p_actor: params.actorEmployeeId ?? null,
+    p_detail: params.detail ?? null,
+    p_patch: params.patch ?? null,
   });
-  if (auditError) throw new Error(auditError.message);
+
+  if (error) {
+    const message = error.message ?? "";
+    if (message.includes("transition_conflict")) {
+      throw new TransitionConflictError(params.requestId);
+    }
+    if (message.includes("illegal_transition")) {
+      // Message shape: "illegal_transition:<from>:<to>".
+      const from = (message.split(":")[1] ?? "unknown") as CoverageStatus;
+      throw new IllegalTransitionError(from, params.to);
+    }
+    throw new Error(message || "Coverage transition failed.");
+  }
 
   return params.to;
 }

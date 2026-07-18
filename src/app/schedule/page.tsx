@@ -5,10 +5,13 @@ import { Chip } from "@/components/ui/chip";
 import { SignOutButton } from "@/components/sign-out-button";
 import { requireUser, getCurrentEmployeeId } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { getEmployeeSchedule } from "@/lib/schedule/employee-view";
+import { getIncomingSwaps, getOutgoingSwaps } from "@/lib/coverage/swap";
 import { strings } from "@/lib/strings";
 import { ClaimButton } from "./claim-button";
 import { ShiftActions } from "./shift-actions";
+import { SwapInbox, FellThroughList } from "./swap-inbox";
 
 export default async function MySchedulePage() {
   await requireUser();
@@ -19,6 +22,15 @@ export default async function MySchedulePage() {
   const supabase = await createClient();
   const { own, claimable } = await getEmployeeSchedule(supabase, employeeId);
 
+  // Swap disclosure needs elevated reads (the counterparty's shift + name), so it
+  // runs service-role with a minimal payload — never the RLS table. The caller is
+  // the authenticated employee, so both queries are scoped to them.
+  const admin = createServiceRoleClient();
+  const [incomingSwaps, fellThroughSwaps] = await Promise.all([
+    getIncomingSwaps(admin, employeeId),
+    getOutgoingSwaps(admin, employeeId),
+  ]);
+
   return (
     <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-6 p-6">
       <PageHeader
@@ -26,6 +38,15 @@ export default async function MySchedulePage() {
         subtitle={strings.mySchedule.subtitle}
         actions={<SignOutButton />}
       />
+
+      {incomingSwaps.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-sm font-semibold text-muted">
+            {strings.mySchedule.incoming}
+          </h2>
+          <SwapInbox incoming={incomingSwaps} />
+        </section>
+      )}
 
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-muted">
@@ -46,7 +67,11 @@ export default async function MySchedulePage() {
                 </p>
               </div>
               {s.coverageStatus ? (
-                <Chip tone="warn">{strings.mySchedule.findingCover}</Chip>
+                <Chip tone="warn">
+                  {s.coverageTrigger === "direct_swap"
+                    ? strings.mySchedule.swapProposed
+                    : strings.mySchedule.findingCover}
+                </Chip>
               ) : s.pendingApproval ? (
                 <Chip tone="warn">{strings.mySchedule.pending}</Chip>
               ) : (
@@ -83,6 +108,15 @@ export default async function MySchedulePage() {
           ))
         )}
       </section>
+
+      {fellThroughSwaps.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-sm font-semibold text-muted">
+            {strings.mySchedule.swapFellThrough}
+          </h2>
+          <FellThroughList outgoing={fellThroughSwaps} />
+        </section>
+      )}
 
       <p className="text-sm text-faint">{strings.mySchedule.onlyYours}</p>
     </main>
