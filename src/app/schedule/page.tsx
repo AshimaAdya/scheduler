@@ -8,10 +8,12 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { getEmployeeSchedule } from "@/lib/schedule/employee-view";
 import { getIncomingSwaps, getOutgoingSwaps } from "@/lib/coverage/swap";
+import { getCoverageAsks } from "@/lib/coverage/respond";
 import { strings } from "@/lib/strings";
 import { ClaimButton } from "./claim-button";
 import { ShiftActions } from "./shift-actions";
 import { SwapInbox, FellThroughList } from "./swap-inbox";
+import { CoverageAsks } from "./coverage-asks";
 
 export default async function MySchedulePage() {
   await requireUser();
@@ -26,9 +28,10 @@ export default async function MySchedulePage() {
   // runs service-role with a minimal payload — never the RLS table. The caller is
   // the authenticated employee, so both queries are scoped to them.
   const admin = createServiceRoleClient();
-  const [incomingSwaps, fellThroughSwaps] = await Promise.all([
+  const [incomingSwaps, fellThroughSwaps, coverageAsks] = await Promise.all([
     getIncomingSwaps(admin, employeeId),
     getOutgoingSwaps(admin, employeeId),
+    getCoverageAsks(admin, employeeId),
   ]);
 
   return (
@@ -38,6 +41,15 @@ export default async function MySchedulePage() {
         subtitle={strings.mySchedule.subtitle}
         actions={<SignOutButton />}
       />
+
+      {coverageAsks.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-sm font-semibold text-muted">
+            {strings.mySchedule.asksTitle}
+          </h2>
+          <CoverageAsks asks={coverageAsks} />
+        </section>
+      )}
 
       {incomingSwaps.length > 0 && (
         <section className="flex flex-col gap-3">

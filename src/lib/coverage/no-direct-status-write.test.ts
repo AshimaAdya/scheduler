@@ -23,6 +23,10 @@ function walk(dir: string): string[] {
 const COVERAGE_STATUS_WRITE =
   /coverage_requests[\s\S]{0,400}?\.update\(\s*\{[\s\S]{0,400}?\bstatus\b/;
 
+// A coverage_requests update whose object literal sets `covered_by`.
+const COVERED_BY_WRITE =
+  /coverage_requests[\s\S]{0,400}?\.update\(\s*\{[\s\S]{0,400}?\bcovered_by\b/;
+
 describe("no direct coverage status writes", () => {
   it("only transition.ts writes coverage_requests.status", () => {
     const files = walk("src");
@@ -31,6 +35,16 @@ describe("no direct coverage status writes", () => {
       const src = readFileSync(file, "utf8");
       return COVERAGE_STATUS_WRITE.test(src);
     });
+    expect(offenders).toEqual([]);
+  });
+
+  // SCH-22 AC: covered_by is set exclusively through the atomic claim path
+  // (the coverage_transition SQL function), never by a TS-side update.
+  it("no TypeScript file writes coverage_requests.covered_by directly", () => {
+    const files = walk("src");
+    const offenders = files.filter((file) =>
+      COVERED_BY_WRITE.test(readFileSync(file, "utf8")),
+    );
     expect(offenders).toEqual([]);
   });
 });

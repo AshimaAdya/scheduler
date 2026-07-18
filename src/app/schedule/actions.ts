@@ -16,6 +16,7 @@ import {
   type SwapCandidate,
   type ShiftSummary,
 } from "@/lib/coverage/swap";
+import { acceptCoverageOffer, declineCoverageOffer } from "@/lib/coverage/respond";
 
 export type CoverageActionResult = { ok: true } | { ok: false; error: string };
 
@@ -166,6 +167,34 @@ export async function convertSwapToBroadcastAction(
 
   revalidatePath("/schedule");
   return res.ok ? { ok: true } : { ok: false, error: res.error };
+}
+
+export async function acceptCoverageOfferAction(
+  requestId: string,
+): Promise<CoverageActionResult> {
+  await requireUser();
+  const employeeId = await getCurrentEmployeeId();
+  if (!employeeId) return { ok: false, error: "No employee profile." };
+
+  const admin = createServiceRoleClient();
+  const res = await acceptCoverageOffer(admin, { requestId, actorEmployeeId: employeeId });
+
+  revalidatePath("/schedule");
+  return res;
+}
+
+export async function declineCoverageOfferAction(
+  requestId: string,
+): Promise<CoverageActionResult> {
+  await requireUser();
+  const employeeId = await getCurrentEmployeeId();
+  if (!employeeId) return { ok: false, error: "No employee profile." };
+
+  const admin = createServiceRoleClient();
+  const res = await declineCoverageOffer(admin, { requestId, actorEmployeeId: employeeId });
+
+  revalidatePath("/schedule");
+  return res;
 }
 
 export async function claimShiftAction(shiftId: string): Promise<ClaimResult> {

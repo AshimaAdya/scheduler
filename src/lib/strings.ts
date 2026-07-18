@@ -207,6 +207,11 @@ export const strings = {
     declining: "Declining…",
     swapFellThrough: "Swaps that fell through",
     broadcastInstead: "Ask the team to cover",
+    // Being asked to cover a coworker's shift
+    asksTitle: "Shifts you're asked to cover",
+    coverIt: "Yes, I'll cover",
+    covering: "Covering…",
+    cantCover: "Can't",
   },
 
   coverage: {
