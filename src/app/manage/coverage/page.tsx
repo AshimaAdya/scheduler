@@ -7,10 +7,12 @@ import { buttonClasses } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { resolveSettings } from "@/lib/settings/resolve";
 import { strings } from "@/lib/strings";
+import { getOfferBreakdown, getUnfilledThisWeek } from "@/lib/coverage/board";
 import { CoverageCountdown } from "./coverage-countdown";
 import { ApproveDayOffButton } from "./approve-button";
 import { ConfirmSwapButton } from "./confirm-swap-button";
 import { OverridePanel } from "./override-panel";
+import { RealtimeCoverage } from "./realtime";
 
 const ACTIVE = new Set(["tier1_broadcast", "tier2_broadcast", "escalated"]);
 // A manager can override any unresolved broadcast (never a peer swap).
@@ -80,11 +82,22 @@ export default async function CoveragePage() {
     (pendingShiftIds.has(r.shift_id) ||
       (r.offered_shift_id ? pendingShiftIds.has(r.offered_shift_id) : false));
 
+  // Live-ops extras: who's been asked/declined/silent per open broadcast, and the
+  // shifts still unfilled this week.
+  const activeBroadcastIds = rows
+    .filter((r) => r.trigger_type !== "direct_swap" && ACTIVE.has(r.status))
+    .map((r) => r.id);
+  const [breakdowns, unfilled] = await Promise.all([
+    getOfferBreakdown(supabase, activeBroadcastIds),
+    getUnfilledThisWeek(supabase, tz),
+  ]);
+
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 p-6">
+      <RealtimeCoverage />
       <PageHeader
         title={strings.coverage.title}
-        subtitle={strings.coverage.subtitle}
+        subtitle={`${strings.coverage.subtitle} · ${strings.coverage.liveNote}`}
         actions={
           <Link href="/manage" className={buttonClasses("secondary", "sm")}>
             ← {strings.manage.title}
@@ -111,6 +124,20 @@ export default async function CoveragePage() {
 
             const canOverride =
               r.trigger_type !== "direct_swap" && OVERRIDABLE.has(r.status);
+
+            const b = breakdowns.get(r.id);
+            const offerLine =
+              b && b.asked > 0
+                ? [
+                    strings.coverage.askedLabel(b.asked),
+                    ...(b.declined.length
+                      ? [`${strings.coverage.declinedLabel}: ${b.declined.join(", ")}`]
+                      : []),
+                    ...(b.waiting.length
+                      ? [`${strings.coverage.waitingLabel}: ${b.waiting.join(", ")}`]
+                      : []),
+                  ].join(" · ")
+                : null;
 
             return (
               <Card key={r.id} className="flex flex-col gap-3 p-4">
@@ -149,12 +176,40 @@ export default async function CoveragePage() {
                     {swapNeedsConfirm(r) && <ConfirmSwapButton requestId={r.id} />}
                   </div>
                 </div>
+                {offerLine && <p className="text-xs text-faint">{offerLine}</p>}
                 {canOverride && <OverridePanel requestId={r.id} />}
               </Card>
             );
           })}
         </div>
       )}
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-semibold text-muted">
+          {strings.coverage.unfilledTitle}
+        </h2>
+        {unfilled.length === 0 ? (
+          <p className="text-sm text-muted">{strings.coverage.unfilledEmpty}</p>
+        ) : (
+          unfilled.map((s) => (
+            <Card
+              key={s.id}
+              className="flex items-center justify-between gap-3 border-dashed p-4"
+            >
+              <div>
+                <p className="font-semibold text-ink">{s.when}</p>
+                <p className="text-sm text-muted">
+                  {s.skill}
+                  {s.locationName ? ` · ${s.locationName}` : ""}
+                </p>
+              </div>
+              <Link href="/manage/schedule" className={buttonClasses("secondary", "sm")}>
+                {strings.coverage.fillIt}
+              </Link>
+            </Card>
+          ))
+        )}
+      </section>
     </main>
   );
 }

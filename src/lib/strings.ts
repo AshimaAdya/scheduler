@@ -277,6 +277,14 @@ export const strings = {
     confirmSwap: "Confirm swap",
     confirmingSwap: "Confirming…",
     swapConfirmed: "Swap confirmed",
+    // Live-ops board (SCH-29)
+    liveNote: "Updates live",
+    unfilledTitle: "Unfilled shifts this week",
+    unfilledEmpty: "No unfilled shifts this week.",
+    fillIt: "Fill it",
+    askedLabel: (n: number) => `${n} asked`,
+    declinedLabel: "declined",
+    waitingLabel: "waiting",
     // Manager overrides (SCH-24)
     override: "Manager options",
     assignDirectly: "Assign someone",
