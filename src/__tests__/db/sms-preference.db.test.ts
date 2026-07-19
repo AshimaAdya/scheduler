@@ -13,7 +13,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { createClient } from "@supabase/supabase-js";
 import { MultiChannelNotificationService } from "@/lib/notifications/service";
-import type { DeliveryChannel, NotificationChannel } from "@/lib/notifications/channels/types";
+import type { DeliveryChannel } from "@/lib/notifications/channels/types";
+import type { NotificationChannel } from "@/lib/notifications/types";
 
 const API_URL = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
 const SERVICE_ROLE_KEY =

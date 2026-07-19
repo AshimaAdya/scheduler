@@ -258,6 +258,18 @@ export const strings = {
     },
   },
 
+  // Auto-replies sent back over SMS (SCH-27). Short and plain.
+  smsReplies: {
+    covering: (label: string) => `Thanks! You're covering ${label}.`,
+    declined: "Thanks, noted — we'll ask someone else.",
+    askYesNo: "Please reply YES to take the shift or NO to pass.",
+    noOffers: "You have no shifts to respond to right now.",
+    unknownNumber:
+      "Sorry, we don't recognize this number. Please contact your manager.",
+    disambIntro: "You have a few shifts to cover. Reply with the number, e.g. YES 1:",
+    alreadyCovered: "Thanks! That shift was already covered by someone else.",
+  },
+
   notifications: {
     title: "Message log",
     subtitle: "Every text and email we've tried to send, and whether it went out.",
