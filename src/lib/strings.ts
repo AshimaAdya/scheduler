@@ -22,6 +22,55 @@ export const strings = {
     dashboard: "Dashboard",
     team: "Team",
     locations: "Locations",
+    // Employee bottom-nav (SCH-28)
+    forYou: "For you",
+    mySchedule: "My schedule",
+    requests: "Requests",
+    profile: "Profile",
+  },
+
+  // Employee home decision feed (SCH-28)
+  home: {
+    title: "For you",
+    needsReply: "Needs your reply",
+    nextShift: "Your next shift",
+    openShift: "Open shifts you can grab",
+    yourRequests: "Your requests",
+    allCaughtUp: "You're all caught up. Nothing needs a reply right now.",
+    seeAll: "See all",
+    toManage: "Go to Manage",
+  },
+
+  // The three-step coverage journey (replaces "Tier 1/2" on screen)
+  journey: {
+    team: "Asking your team",
+    other: "Asking other locations",
+    manager: "With your manager",
+    done: "Covered",
+  },
+
+  myRequests: {
+    title: "My requests",
+    subtitle: "Time off, sick days, and swaps you've asked for.",
+    empty: "No requests yet.",
+    inProgress: "In progress",
+    coveredBy: (name: string) => `Covered by ${name}`,
+    approved: "Approved",
+    cancelled: "Cancelled",
+    resolved: "Sorted by your manager",
+    swapDeclined: "Declined",
+  },
+
+  profile: {
+    title: "Profile",
+    contactHeader: "How we reach you",
+    textMe: "Text me about shifts",
+    emailMe: "Email me too",
+    phone: "Phone number",
+    noPhone: "Not set",
+    availability: "My availability",
+    manage: "Manage",
+    saved: "Saved.",
   },
 
   manage: {

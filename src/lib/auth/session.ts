@@ -58,10 +58,10 @@ export async function requireUser() {
   return user;
 }
 
-/** Require manager/admin; redirect employees to /dashboard, guests to /login. */
+/** Require manager/admin; redirect employees to the home feed, guests to /login. */
 export async function requireManager(): Promise<AppRole> {
   const role = await getCurrentRole();
   if (!role) redirect("/login");
-  if (!isManagerRole(role)) redirect("/dashboard");
+  if (!isManagerRole(role)) redirect("/");
   return role;
 }

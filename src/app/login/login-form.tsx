@@ -26,8 +26,8 @@ export function LoginForm() {
       return;
     }
 
-    // Send the user to their intended destination, or the dashboard.
-    const next = params.get("next") ?? "/dashboard";
+    // Send the user to their intended destination, or the home feed.
+    const next = params.get("next") ?? "/";
     router.push(next);
     router.refresh();
   }
