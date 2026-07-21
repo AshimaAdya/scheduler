@@ -61,6 +61,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Run on everything except static assets and the favicon.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Run on everything except static assets, the favicon, and `/api/*`. API routes
+  // self-authenticate (cron secret, Twilio signature) or are public (health,
+  // debug) — gating them here would 307 Vercel Cron, the Twilio webhook, and the
+  // uptime monitor away from the endpoints they must reach.
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

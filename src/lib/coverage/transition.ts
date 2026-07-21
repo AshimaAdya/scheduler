@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { logEvent } from "@/lib/log";
 import { IllegalTransitionError, type CoverageStatus } from "./state-machine";
 
 export type TransitionParams = {
@@ -75,6 +76,14 @@ export async function transition(
     }
     throw new Error(message || "Coverage transition failed.");
   }
+
+  // Structured trail: the whole lifecycle is greppable by coverageRequestId.
+  logEvent("coverage.transition", {
+    coverageRequestId: params.requestId,
+    from: current.status,
+    to: params.to,
+    actor: params.actorEmployeeId ?? null,
+  });
 
   return params.to;
 }

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { logEvent } from "@/lib/log";
 import { resolveSettings } from "@/lib/settings/resolve";
 import { waitWindowsFor } from "@/lib/settings/wait-windows";
 import type { WindowedTrigger } from "@/lib/settings/types";
@@ -84,6 +85,12 @@ export async function startCoverageBroadcast(
   if (reqError || !request) {
     return { ok: false, error: reqError?.message ?? "Could not start the request." };
   }
+
+  logEvent("coverage.opened", {
+    coverageRequestId: request.id,
+    trigger: params.triggerType,
+    shiftId: params.shiftId,
+  });
 
   const candidates = await findCoverageCandidates(supabase, {
     shiftId: params.shiftId,
